@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public')); // Folder untuk file statis HTML/CSS/JS
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`[Server] Berjalan di http://localhost:${PORT}. Buka browser di http://localhost:${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`[Server] Berjalan di port ${PORT}. Buka browser di http://localhost:${PORT}`));
 
 // Path file database pengetahuan AI
 const KNOWLEDGE_FILE = path.join(__dirname, 'knowledge_base.json');
@@ -104,24 +104,34 @@ ${knowledgeData.knowledgeText || ''}
     throw lastError || new Error('Gagal menghasilkan balasan AI.');
 }
 
-// Simpan sesi di AppData Local agar tidak terkunci oleh Microsoft OneDrive
-const sessionPath = path.join(process.env.LOCALAPPDATA || 'C:\\Users\\abdyf\\AppData\\Local', 'wa-blast-session');
+// Simpan sesi di AppData Local (jika di Windows) atau folder lokal .wwebjs_auth (jika di Linux / Railway Cloud)
+const sessionPath = process.env.LOCALAPPDATA 
+    ? path.join(process.env.LOCALAPPDATA, 'wa-blast-session') 
+    : path.join(__dirname, '.wwebjs_auth');
+
 console.log('[Server] Lokasi Sesi WhatsApp:', sessionPath);
+
+const puppeteerConfig = {
+    headless: true,
+    args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu'
+    ]
+};
+
+// Jika berjalan di container Docker (Railway / Render) yang menggunakan Chromium bawaan sistem
+if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    puppeteerConfig.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+}
 
 const client = new Client({
     authStrategy: new LocalAuth({ dataPath: sessionPath }),
-    puppeteer: {
-        headless: true,
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--disable-gpu'
-        ]
-    }
+    puppeteer: puppeteerConfig
 });
 
 // Event saat QR Code / Pairing Code siap

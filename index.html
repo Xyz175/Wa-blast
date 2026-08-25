@@ -1,0 +1,2683 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Blast Studio - Rumah Etnik Papua</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --wa-primary: #075e54;
+            --wa-teal: #128c7e;
+            --wa-green: #25d366;
+            --wa-light-green: #d9fdd3;
+            --wa-dark: #111b21;
+            --wa-bg: #efeae2;
+            --body-bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --primary-gradient: linear-gradient(135deg, #075e54 0%, #128c7e 50%, #25d366 100%);
+            --badge-bg: rgba(18, 140, 126, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--body-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        /* Top Navbar / Header */
+        .navbar-brand-custom {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: white;
+        }
+        .brand-icon-wrapper {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: #25d366;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .app-header {
+            background: linear-gradient(135deg, #075e54 0%, #0d463e 100%);
+            color: white;
+            padding: 24px 0 75px 0;
+            margin-bottom: -45px;
+            box-shadow: 0 4px 20px rgba(7, 94, 84, 0.15);
+        }
+
+        /* Modern Cards */
+        .app-card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s ease-in-out;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .app-card:hover {
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.07);
+        }
+        .app-card-header {
+            padding: 16px 22px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #fafbfc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .app-card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #1f2937;
+        }
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: var(--wa-teal);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        .app-card-body {
+            padding: 22px;
+        }
+
+        /* WhatsApp Connection Card at Top */
+        .wa-connection-card {
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            padding: 14px 20px;
+            color: white;
+            margin-top: 14px;
+        }
+        .wa-connected-badge {
+            background: #dcfce7;
+            color: #15803d;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.82rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #bbf7d0;
+        }
+        .wa-disconnected-badge {
+            background: #fee2e2;
+            color: #b91c1c;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.82rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #fecaca;
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #22c55e;
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            animation: pulse-green 1.8s infinite cubic-bezier(0.66, 0, 0, 1);
+        }
+        .pulse-dot-red {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ef4444;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            animation: pulse-red 1.8s infinite cubic-bezier(0.66, 0, 0, 1);
+        }
+        @keyframes pulse-green {
+            to { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+        }
+        @keyframes pulse-red {
+            to { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        }
+
+        /* Pairing Code Tiles */
+        .code-tile-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .code-tile {
+            width: 44px;
+            height: 54px;
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            font-weight: 800;
+            font-family: monospace;
+            color: #15803d;
+            box-shadow: 0 4px 10px rgba(34, 197, 94, 0.15);
+            text-transform: uppercase;
+        }
+        .code-divider {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #94a3b8;
+            margin: 0 4px;
+        }
+
+        /* QR Code Container Box */
+        .qr-card-box {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        #qrcodeCanvas {
+            display: inline-flex;
+            padding: 10px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f1f5f9;
+            margin: 8px auto;
+        }
+
+        /* Stats Cards */
+        .stat-card-mini {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 14px 18px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        /* Drag & Drop File Upload Zone */
+        .dropzone-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 24px 20px;
+            text-align: center;
+            background-color: #f8fafc;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        .dropzone-area:hover, .dropzone-area.dragover {
+            border-color: var(--wa-teal);
+            background-color: #f0fdf9;
+        }
+        .dropzone-icon {
+            font-size: 36px;
+            color: var(--wa-teal);
+            margin-bottom: 6px;
+        }
+        .dropzone-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* File Attached Info Box */
+        .file-info-badge {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #e6fffa;
+            border: 1px solid #b2f5ea;
+            color: #234e52;
+            padding: 10px 16px;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+
+        /* Variable Chips / Tags */
+        .variable-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .variable-chip:hover {
+            background: #e0f2fe;
+            border-color: #38bdf8;
+            color: #0284c7;
+            transform: translateY(-1px);
+        }
+
+        /* Textarea styling */
+        .custom-textarea {
+            border-radius: 12px;
+            border: 1px solid #d1d5db;
+            padding: 14px;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        .custom-textarea:focus {
+            border-color: var(--wa-teal);
+            box-shadow: 0 0 0 3px rgba(18, 140, 126, 0.15);
+        }
+
+        /* WhatsApp Chat Simulator Preview */
+        .wa-simulator-wrapper {
+            background-color: var(--wa-bg);
+            background-image: radial-gradient(#d1c7b7 0.75px, transparent 0.75px);
+            background-size: 16px 16px;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid #e2d9cd;
+            margin-top: 15px;
+            position: relative;
+        }
+        .wa-simulator-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+        }
+        .wa-msg-bubble {
+            background-color: var(--wa-light-green);
+            color: #111b21;
+            border-radius: 10px 10px 0px 10px;
+            padding: 10px 14px 6px 14px;
+            max-width: 95%;
+            margin-left: auto;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.13);
+            font-size: 0.88rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+        .wa-msg-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: -6px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid var(--wa-light-green);
+            border-bottom: 8px solid transparent;
+        }
+        .wa-msg-meta {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+            font-size: 0.7rem;
+            color: #667781;
+            margin-top: 4px;
+        }
+        .wa-msg-meta i {
+            color: #53bdeb;
+        }
+
+        /* Action Blast Button */
+        .btn-blast {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-size: 1rem;
+            letter-spacing: 0.2px;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.35);
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-blast:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+            color: white;
+        }
+        .btn-blast:disabled {
+            background: #94a3b8;
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Modern Table Customization */
+        .table-custom {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+        .table-custom thead th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 12px 14px;
+        }
+        .table-custom tbody td {
+            padding: 12px 14px;
+            font-size: 0.88rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .table-custom tbody tr:hover {
+            background-color: #f8fafc;
+        }
+        .phone-badge {
+            font-family: monospace;
+            background: #ecfdf5;
+            color: #065f46;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.82rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .link-badge {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar-custom {
+            background: linear-gradient(90deg, #128c7e, #25d366);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        /* Empty state */
+        .empty-table-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: #94a3b8;
+        }
+        .empty-table-state i {
+            font-size: 48px;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+        }
+
+        /* Footer */
+        .footer-text {
+            text-align: center;
+            font-size: 0.82rem;
+            color: #9ca3af;
+            margin-top: 30px;
+        }
+
+        /* Modern Nav Tabs for Modal */
+        .nav-pills-custom .nav-link {
+            border-radius: 10px;
+            color: #4b5563;
+            font-weight: 600;
+            font-size: 0.88rem;
+            padding: 8px 16px;
+            transition: all 0.2s ease;
+        }
+        .nav-pills-custom .nav-link.active {
+            background-color: var(--wa-teal);
+            color: white;
+        }
+
+        /* Main Navigation Top Tabs (Blast vs AI Bot) */
+        .custom-main-tabs {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 6px;
+            border-radius: 50rem;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            display: inline-flex;
+        }
+        .custom-main-tabs .nav-link {
+            border-radius: 50rem;
+            padding: 10px 24px;
+            font-size: 0.92rem;
+            color: #475569;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .custom-main-tabs .nav-link:hover {
+            color: var(--wa-dark-green);
+        }
+        .custom-main-tabs .nav-link.active {
+            background: linear-gradient(135deg, var(--wa-teal), var(--wa-dark-green));
+            color: white;
+            box-shadow: 0 4px 14px rgba(18, 140, 126, 0.35);
+        }
+
+        /* AI Simulator Chat Box Styles */
+        .ai-simulator-chat-box {
+            background-color: #efeae2;
+            background-image: radial-gradient(#d1d7db 1px, transparent 1px);
+            background-size: 16px 16px;
+            height: 380px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .ai-chat-bubble-bot {
+            align-self: flex-start;
+            background: white;
+            border-radius: 0 16px 16px 16px;
+            padding: 12px 16px;
+            max-width: 88%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: #111b21;
+            white-space: pre-wrap;
+        }
+        .ai-chat-bubble-user {
+            align-self: flex-end;
+            background: #d9fdd3;
+            border-radius: 16px 0 16px 16px;
+            padding: 10px 14px;
+            max-width: 85%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: #111b21;
+        }
+        .ai-typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-style: italic;
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+        .ai-typing-dot {
+            width: 5px;
+            height: 5px;
+            background-color: #128c7e;
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out both;
+        }
+        .ai-typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .ai-typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header class="app-header">
+        <div class="container-fluid px-lg-5">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div class="navbar-brand-custom">
+                    <div class="brand-icon-wrapper">
+                        <i class="bi bi-whatsapp"></i>
+                    </div>
+                    <div>
+                        <h1 class="h4 mb-0 fw-bold text-white tracking-tight">WhatsApp Blast Studio</h1>
+                        <span class="small text-light opacity-75">Rumah Etnik Papua • Pengiriman Pesan Otomatis & Promosi Wisata</span>
+                    </div>
+                </div>
+
+                <!-- WhatsApp Device Connection Widget in Header -->
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <div id="waStatusBadgeContainer">
+                        <span class="wa-disconnected-badge" id="waStatusBadge">
+                            <span class="pulse-dot-red" id="waStatusPulse"></span>
+                            <span id="waStatusLabel">Memeriksa WhatsApp...</span>
+                        </span>
+                    </div>
+                    
+                    <button type="button" class="btn btn-sm btn-light rounded-pill px-3 py-1 fw-bold shadow-sm" id="btnOpenQrModal" onclick="openQrModal()">
+                        <i class="bi bi-phone-vibrate me-1 text-success"></i> <span id="btnQrModalText">Tautkan Nomor WhatsApp</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active WhatsApp Account Sub-banner -->
+            <div class="wa-connection-card d-none" id="waAccountCard">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-success text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i class="bi bi-person-check-fill fs-5"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-6 text-white" id="connectedUserName">Rumah Etnik Papua</div>
+                            <div class="small text-light opacity-90">Nomor Pengirim: <strong id="connectedUserPhone">+62 812-xxxx-xxxx</strong> • Status: <span class="text-success fw-bold">Siap Mengirim Otomatis</span></div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="openTestModal()">
+                            <i class="bi bi-send-check me-1"></i> Uji Coba Kirim 1 Pesan
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger rounded-pill px-3" onclick="confirmLogout()">
+                            <i class="bi bi-box-arrow-right me-1"></i> Ganti Nomor / Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container-fluid px-lg-5">
+        
+        <!-- Main Top Navigation Switcher (Blast vs Bot AI) -->
+        <div class="d-flex justify-content-center mb-4 mt-2">
+            <div class="custom-main-tabs">
+                <button class="nav-link active" id="mainTabBlastBtn" onclick="switchMainTab('blast')">
+                    <i class="bi bi-send-fill"></i>
+                    <span>WhatsApp Blast Massal</span>
+                </button>
+                <button class="nav-link" id="mainTabAiBtn" onclick="switchMainTab('ai')">
+                    <i class="bi bi-robot"></i>
+                    <span>Bot AI Rumah Etnik Papua</span>
+                    <span class="badge bg-success bg-opacity-25 text-success ms-1" style="font-size: 0.72rem;">Gemini AI</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- VIEW 1: WHATSAPP BLAST MASSAL -->
+        <!-- ============================================================= -->
+        <div id="viewBlastSection">
+            <!-- Summary Metric Row -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="stat-card-mini">
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div>
+                            <div class="small text-muted fw-semibold">Total Kontak</div>
+                            <div class="fs-5 fw-bold" id="statTotalContacts">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card-mini">
+                        <div class="stat-icon bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div>
+                            <div class="small text-muted fw-semibold">Berhasil Terkirim</div>
+                            <div class="fs-5 fw-bold text-success" id="statSuccessCount">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card-mini">
+                        <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div>
+                            <div class="small text-muted fw-semibold">Gagal Terkirim</div>
+                            <div class="fs-5 fw-bold text-danger" id="statFailedCount">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card-mini">
+                        <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <div>
+                            <div class="small text-muted fw-semibold">Estimasi Waktu</div>
+                            <div class="fs-5 fw-bold text-dark" id="statEstimatedTime">0 Detik</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                
+                <!-- ======================================= -->
+                <!-- KOLOM KIRI: KONFIGURASI, PESAN & KIRIM -->
+                <!-- ======================================= -->
+                <div class="col-lg-5">
+                    
+                    <!-- CARD 1: UPLOAD DATA KONTAK (EXCEL / CSV) -->
+                    <div class="app-card">
+                        <div class="app-card-header">
+                            <h2 class="app-card-title">
+                                <span class="step-number">1</span>
+                                Import Data Kontak
+                            </h2>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-success dropdown-toggle rounded-pill px-3 py-1 fw-bold shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-file-earmark-excel-fill me-1"></i> Unduh Format Template
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 p-2">
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded-2" href="javascript:void(0)" onclick="downloadTemplateExcel()">
+                                            <i class="bi bi-file-earmark-excel-fill text-success fs-5"></i>
+                                            <div>
+                                                <strong class="d-block text-dark">Format Excel (.xlsx)</strong>
+                                                <small class="text-muted">Kolom terpisah otomatis di WPS/Excel</small>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded-2" href="javascript:void(0)" onclick="downloadTemplateCSV()">
+                                            <i class="bi bi-file-earmark-spreadsheet-fill text-primary fs-5"></i>
+                                            <div>
+                                                <strong class="d-block text-dark">Format CSV (.csv)</strong>
+                                                <small class="text-muted">Format teks standar</small>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="app-card-body">
+                            <!-- Dropzone Area -->
+                            <div class="dropzone-area" id="dropzoneBox">
+                                <input type="file" id="csvFile" accept=".xlsx, .xls, .csv" class="dropzone-input">
+                                <div class="dropzone-icon">
+                                    <i class="bi bi-file-earmark-excel text-success"></i>
+                                </div>
+                                <div class="fw-bold text-dark mb-1">Klik atau Tarik File Excel (.xlsx) / CSV ke Sini</div>
+                                <div class="small text-muted">Kolom terpisah: <code>NO_WA</code> (Kolom A), <code>NAMA</code> (B), <code>PERUSAHAAN</code> (C), <code>VIDEO</code> (D)</div>
+                            </div>
+
+                            <!-- File Info (Hidden by default) -->
+                            <div id="fileInfoCard" class="file-info-badge d-none">
+                                <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                    <i class="bi bi-file-earmark-spreadsheet-fill text-success fs-5"></i>
+                                    <div>
+                                        <div class="fw-bold text-truncate" id="fileNameLabel" style="max-width: 200px;">file.csv</div>
+                                        <div class="small text-muted" id="fileSizeLabel">0 KB</div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-link text-danger p-0" onclick="resetFile()" title="Hapus File">
+                                    <i class="bi bi-x-circle-fill fs-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 2: TEMPLATE PESAN & LIVE SIMULATOR -->
+                    <div class="app-card">
+                        <div class="app-card-header">
+                            <h2 class="app-card-title">
+                                <span class="step-number">2</span>
+                                Template Pesan & Personalisasi
+                            </h2>
+                            <span class="badge bg-light text-secondary border">Variabel Otomatis</span>
+                        </div>
+                        <div class="app-card-body">
+                            <!-- Dynamic Variable Insertion Chips -->
+                            <div class="mb-2">
+                                <label class="form-label small fw-semibold text-muted mb-1">Klik tag untuk menyisipkan variabel:</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="variable-chip" onclick="insertVariable('[NAMA]')">
+                                        <i class="bi bi-plus"></i> [NAMA]
+                                    </span>
+                                    <span class="variable-chip" onclick="insertVariable('[PERUSAHAAN]')">
+                                        <i class="bi bi-plus"></i> [PERUSAHAAN]
+                                    </span>
+                                    <span class="variable-chip" onclick="insertVariable('[VIDEO]')">
+                                        <i class="bi bi-plus"></i> [VIDEO]
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Message Textarea -->
+                            <div class="mb-3">
+                                <textarea id="messageTemplate" class="form-control message-textarea" rows="7" placeholder="Ketik template pesan WhatsApp Anda...">Halo [NAMA], salam kenal. Saya dari Rumah Etnik Papua
+
+Kami ingin menawarkan kolaborasi untuk melengkapi paket tour [PERUSAHAAN] dengan destinasi wisata budaya khas di Sorong.
+
+Berikut profil video kami:
+[VIDEO]
+
+Apakah berkenan berdiskusi lebih lanjut?</textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-2 px-1">
+                                    <span class="small text-muted" style="font-size: 0.78rem;">Tip: Gunakan <code>*tebal*</code> atau <code>_miring_</code></span>
+                                    <span class="char-count-badge" id="charCounter">0 Karakter</span>
+                                </div>
+                            </div>
+
+                            <!-- Live WhatsApp Chat Simulator Bubble -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label small fw-bold text-muted mb-0">
+                                        <i class="bi bi-phone me-1"></i> Live WhatsApp Chat Simulator
+                                    </label>
+                                    <select class="form-select form-select-sm py-0 px-2 w-auto" id="previewContactSelector" onchange="updateMessagePreview()" style="font-size: 0.78rem; height: 26px;">
+                                        <option value="0">Kontak 1 (Contoh)</option>
+                                    </select>
+                                </div>
+                                <div class="wa-simulator-wrapper">
+                                    <div class="wa-msg-bubble">
+                                        <div id="previewMessageContent"></div>
+                                        <div class="wa-msg-meta">
+                                            <span id="previewTime">12:00</span>
+                                            <i class="bi bi-check2-all"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 3: EKSEKUSI PENGIRIMAN BLAST -->
+                    <div class="app-card">
+                        <div class="app-card-header">
+                            <h2 class="app-card-title">
+                                <span class="step-number">3</span>
+                                Eksekusi Blast Otomatis
+                            </h2>
+                        </div>
+                        <div class="app-card-body">
+                            
+                            <!-- WhatsApp Connection Warning in Card 3 -->
+                            <div id="waNotConnectedWarning" class="alert alert-warning d-flex align-items-center justify-content-between p-3 rounded-3 mb-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-exclamation-triangle-fill fs-5 text-warning"></i>
+                                    <span class="small fw-semibold">WhatsApp belum ditautkan.</span>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-dark rounded-pill px-3" onclick="openQrModal()">
+                                    Tautkan Nomor
+                                </button>
+                            </div>
+
+                            <!-- Progress Sending Bar (Hidden initially) -->
+                            <div id="progressSection" class="mb-3 d-none">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small fw-bold text-dark" id="progressStatusText">Mengirim pesan...</span>
+                                    <span class="small fw-bold text-success" id="progressPercentage">0%</span>
+                                </div>
+                                <div class="progress-container mb-2">
+                                    <div class="progress-bar-custom" id="progressBar" style="width: 0%;"></div>
+                                </div>
+                                <div class="small text-muted text-center" id="progressDetailText">Menyiapkan antrean...</div>
+                            </div>
+
+                            <!-- Final Status Alert -->
+                            <div id="statusAlert" class="alert d-none rounded-3 py-2 px-3 mb-3"></div>
+
+                            <!-- Big Blast Button -->
+                            <button onclick="confirmAndSendBlast()" class="btn-blast w-100" id="btnKirim" disabled>
+                                <i class="bi bi-send-fill"></i>
+                                <span id="btnKirimText">Kirim WhatsApp Blast Sekarang</span>
+                            </button>
+                            
+                            <div class="text-center small text-muted mt-2">
+                                <i class="bi bi-shield-lock me-1"></i> Pesan dikirim otomatis dari WhatsApp Anda dengan jeda 3 detik
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ======================================= -->
+                <!-- KOLOM KANAN: PREVIEW TABEL KONTAK -->
+                <!-- ======================================= -->
+                <div class="col-lg-7">
+                    <div class="app-card h-100 mb-0 d-flex flex-column">
+                        <div class="app-card-header">
+                            <h2 class="app-card-title">
+                                <i class="bi bi-table text-success fs-5"></i>
+                                Daftar Kontak & Status Pengiriman
+                            </h2>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-semibold" id="tableRowBadge">0 Kontak Terdata</span>
+                            </div>
+                        </div>
+                        <div class="app-card-body flex-grow-1 p-3">
+                            
+                            <!-- Laporan Ringkasan Pengiriman Selesai -->
+                            <div id="blastResultReportCard" class="alert alert-light border rounded-3 p-3 mb-3 d-none shadow-sm">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                    <div>
+                                        <h6 class="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+                                            <i class="bi bi-bar-chart-fill text-success"></i> Hasil Pengiriman WhatsApp Blast
+                                        </h6>
+                                        <div class="small text-muted" id="blastReportSummaryText">
+                                            Terkirim: <strong class="text-success" id="reportSuccessText">0</strong> • Gagal: <strong class="text-danger" id="reportFailedText">0</strong> dari total <span id="reportTotalText">0</span> kontak
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <button type="button" id="btnDownloadFailedExcel" onclick="downloadFailedContactsExcel()" class="btn btn-sm btn-danger rounded-pill px-3 py-1 fw-bold shadow-sm d-none">
+                                            <i class="bi bi-file-earmark-excel-fill me-1"></i> Unduh Nomor Gagal (.xlsx)
+                                        </button>
+                                        <button type="button" id="btnRetryFailed" onclick="retryFailedContacts()" class="btn btn-sm btn-warning rounded-pill px-3 py-1 fw-bold shadow-sm d-none">
+                                            <i class="bi bi-arrow-repeat me-1"></i> Kirim Ulang Nomor Gagal
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Filter Status Pengiriman -->
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                                <div class="btn-group btn-group-sm" role="group" id="filterStatusGroup">
+                                    <button type="button" class="btn btn-outline-secondary active fw-semibold" id="btnFilterAll" onclick="applyStatusFilter('ALL')">
+                                        Semua (<span id="countFilterAll">0</span>)
+                                    </button>
+                                    <button type="button" class="btn btn-outline-success fw-semibold" id="btnFilterSuccess" onclick="applyStatusFilter('Sukses')">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Terkirim (<span id="countFilterSuccess">0</span>)
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger fw-semibold" id="btnFilterFailed" onclick="applyStatusFilter('Gagal')">
+                                        <i class="bi bi-x-circle-fill me-1"></i> Gagal (<span id="countFilterFailed">0</span>)
+                                    </button>
+                                </div>
+                                <div class="small text-muted" id="activeFilterLabel">
+                                    Menampilkan: <strong>Semua Kontak</strong>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table id="contactsTable" class="table table-hover table-custom align-middle" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40px;">No</th>
+                                            <th>Nomor WA</th>
+                                            <th>Nama Kontak</th>
+                                            <th>Perusahaan</th>
+                                            <th>Status Pengiriman</th>
+                                            <th style="width: 50px;">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBodyContent">
+                                        <!-- Dynamic rows loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Empty State Placeholder -->
+                            <div id="emptyTablePlaceholder" class="empty-table-state">
+                                <i class="bi bi-file-earmark-arrow-up"></i>
+                                <h6 class="fw-bold text-dark">Belum Ada Data Kontak</h6>
+                                <p class="small text-muted mb-3">Silakan upload file Excel (.xlsx) / CSV kontak di formulir sebelah kiri untuk melihat data tabel dan status pengiriman.</p>
+                                <button type="button" onclick="downloadTemplateExcel()" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                                    <i class="bi bi-file-earmark-excel-fill me-1"></i> Download Contoh Template Excel (.xlsx)
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- VIEW 2: BOT AI ASISTEN RUMAH ETNIK PAPUA -->
+        <!-- ============================================================= -->
+        <div id="viewAiSection" class="d-none">
+            <div class="row g-4">
+                <!-- Kolom Kiri: Pengaturan Auto-Reply & Knowledge Base Editor -->
+                <div class="col-lg-7">
+                    
+                    <!-- Card AI 1: Status Auto-Reply & Kunci Gemini API -->
+                    <div class="app-card mb-4">
+                        <div class="app-card-header">
+                            <h2 class="app-card-title">
+                                <i class="bi bi-robot text-success fs-5"></i>
+                                Pengaturan Bot AI WhatsApp
+                            </h2>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-1 rounded-pill" id="aiModelBadge">
+                                <i class="bi bi-lightning-charge-fill me-1"></i> Google Gemini 3.6 Flash (Fast & Smart)
+                            </span>
+                        </div>
+                        <div class="app-card-body">
+                            <!-- Toggle Auto-Reply WhatsApp Switch -->
+                            <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3 mb-3 border">
+                                <div>
+                                    <strong class="d-block text-dark mb-1">
+                                        <i class="bi bi-chat-dots-fill text-success me-1"></i> Balas Otomatis WhatsApp (AI Auto-Reply)
+                                    </strong>
+                                    <small class="text-muted">Jika aktif, Bot AI akan membalas pesan WhatsApp dari calon wisatawan/tamu 24/7 secara otomatis menggunakan basis data Rumah Etnik Papua.</small>
+                                </div>
+                                <div class="form-check form-switch fs-3 mb-0 ms-3">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="switchAiAutoReply" onchange="toggleAiAutoReply(this.checked)">
+                                </div>
+                            </div>
+
+                            <!-- Input API Key -->
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold text-dark">Google Gemini AI API Key:</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-key-fill text-muted"></i></span>
+                                    <input type="password" id="inputGeminiApiKey" class="form-control" placeholder="Masukkan AIzaSy... (atau atur via .env)">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="toggleApiKeyVisibility()" title="Lihat/Sembunyikan Kunci">
+                                        <i class="bi bi-eye" id="iconShowKey"></i>
+                                    </button>
+                                    <button class="btn btn-success fw-bold px-3" type="button" onclick="saveApiKeyAction()">
+                                        <i class="bi bi-save me-1"></i> Simpan Kunci
+                                    </button>
+                                </div>
+                                <div class="form-text small mt-1">
+                                    <i class="bi bi-info-circle text-primary me-1"></i> Belum punya kunci API? <a href="https://aistudio.google.com/app/apikey" target="_blank" class="fw-bold text-success text-decoration-none">Dapatkan API Key Gratis di Google AI Studio <i class="bi bi-box-arrow-up-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card AI 2: Knowledge Base Editor (Basis Pengetahuan) -->
+                    <div class="app-card">
+                        <div class="app-card-header">
+                            <h2 class="app-card-title">
+                                <i class="bi bi-book-half text-success fs-5"></i>
+                                Basis Pengetahuan (Knowledge Base) Rumah Etnik Papua
+                            </h2>
+                            <button type="button" onclick="saveKnowledgeBaseAction()" class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold shadow-sm" id="btnSaveKnowledgeTop">
+                                <i class="bi bi-floppy-fill me-1"></i> Simpan Pengetahuan AI
+                            </button>
+                        </div>
+                        <div class="app-card-body">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold text-dark">Nama Usaha / Destinasi:</label>
+                                    <input type="text" id="aiBusinessName" class="form-control" placeholder="Rumah Etnik Papua">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold text-dark">Nomor WhatsApp Reservasi / Pengelola:</label>
+                                    <input type="text" id="aiContactPhone" class="form-control" placeholder="+62 811-4600-1602">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-dark">Instruksi Karakter / Sapaan AI:</label>
+                                <textarea id="aiSystemInstruction" class="form-control" rows="3" placeholder="Contoh: Anda adalah Asisten Virtual Resmi Rumah Etnik Papua yang ramah, hangat, dan bersahabat..."></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label small fw-bold text-dark mb-0">Informasi Lengkap Rumah Etnik Papua (Paket, Harga, Kamar, Cinderamata, FAQ):</label>
+                                    <small class="text-muted" id="aiKnowledgeCharCount">0 Karakter</small>
+                                </div>
+                                <textarea id="aiKnowledgeText" class="form-control font-monospace" rows="12" style="font-size: 0.85rem;" placeholder="Ketik atau paste semua data lengkap Rumah Etnik Papua di sini..."></textarea>
+                            </div>
+
+                            <button type="button" onclick="saveKnowledgeBaseAction()" class="btn btn-success w-100 py-2 rounded-pill fw-bold shadow-sm" id="btnSaveKnowledgeBottom">
+                                <i class="bi bi-floppy-fill me-1"></i> Simpan & Perbarui Pengetahuan AI
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Kolom Kanan: Simulator Chat AI Interaktif (WhatsApp Style) -->
+                <div class="col-lg-5">
+                    <div class="app-card h-100 d-flex flex-column mb-0">
+                        <div class="app-card-header">
+                            <h2 class="app-card-title">
+                                <i class="bi bi-chat-heart-fill text-success fs-5"></i>
+                                Uji Coba Chat Simulator AI
+                            </h2>
+                            <span class="badge bg-light text-muted border px-2 py-1 small">Simulasi Langsung</span>
+                        </div>
+                        <div class="app-card-body flex-grow-1 d-flex flex-column p-3">
+                            <p class="small text-muted mb-2">Uji coba bagaimana AI menjawab pertanyaan calon wisatawan sebelum mengaktifkan Auto-Reply WhatsApp.</p>
+                            
+                            <!-- Quick Prompt Suggestion Chips -->
+                            <div class="d-flex flex-wrap gap-1 mb-3">
+                                <button type="button" class="btn btn-sm btn-light border rounded-pill py-0 px-2" style="font-size: 0.75rem;" onclick="setSimulatorPrompt('Berapa harga kamar homestay per malam?')">
+                                    🏠 Harga Kamar?
+                                </button>
+                                <button type="button" class="btn btn-sm btn-light border rounded-pill py-0 px-2" style="font-size: 0.75rem;" onclick="setSimulatorPrompt('Ada paket wisata budaya apa saja di Rumah Etnik Papua?')">
+                                    🌿 Paket Wisata?
+                                </button>
+                                <button type="button" class="btn btn-sm btn-light border rounded-pill py-0 px-2" style="font-size: 0.75rem;" onclick="setSimulatorPrompt('Apakah bisa beli oleh-oleh tas Noken asli Papua?')">
+                                    🛍️ Beli Noken?
+                                </button>
+                            </div>
+
+                            <!-- Chat Message Box -->
+                            <div class="ai-simulator-chat-box flex-grow-1 p-3 rounded-3 mb-3" id="aiChatMessages">
+                                <div class="ai-chat-bubble-bot">
+                                    <div class="fw-bold small text-success mb-1">🤖 Asisten Rumah Etnik Papua</div>
+                                    <div>Halo Kaka! Selamat datang di Rumah Etnik Papua 🌿✨ Ada yang bisa saya bantu terkait penginapan homestay etnik, paket wisata budaya, atau cinderamata khas Papua?</div>
+                                    <div class="text-end small opacity-75 mt-1" style="font-size: 0.7rem;">Sekarang</div>
+                                </div>
+                            </div>
+
+                            <!-- Input Chat Simulator -->
+                            <div class="input-group">
+                                <input type="text" id="inputSimulatorMessage" class="form-control rounded-start-pill ps-3" placeholder="Ketik pertanyaan untuk Bot AI..." onkeypress="if(event.key==='Enter') sendSimulatorMessage()">
+                                <button class="btn btn-success rounded-end-pill px-4 fw-bold" type="button" id="btnSendSimulator" onclick="sendSimulatorMessage()">
+                                    <i class="bi bi-send-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-text">
+            &copy; 2026 Rumah Etnik Papua • Sistem WhatsApp Blast & Asisten Virtual AI Cerdas.
+        </div>
+    </main>
+
+    <!-- ======================================================= -->
+    <!-- MODAL 1: TAUTKAN WHATSAPP DENGAN NOMOR TELEPON / QR -->
+    <!-- ======================================================= -->
+    <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold d-flex align-items-center gap-2" id="qrModalLabel">
+                        <i class="bi bi-whatsapp text-success fs-4"></i>
+                        Tautkan Akun WhatsApp
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body p-4">
+                    
+                    <!-- State: Form Belum Terhubung -->
+                    <div id="modalNotConnectedSection">
+                        
+                        <!-- Nav Pills Tab Pilihan Metode -->
+                        <ul class="nav nav-pills nav-pills-custom nav-fill bg-light p-1 rounded-3 mb-4" id="pairingNavTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="tab-phone-btn" data-bs-toggle="pill" data-bs-target="#tab-phone" type="button" role="tab">
+                                    <i class="bi bi-phone me-1"></i> Nomor Telepon & Kode
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="tab-qr-btn" data-bs-toggle="pill" data-bs-target="#tab-qr" type="button" role="tab">
+                                    <i class="bi bi-qr-code me-1"></i> Scan QR Code
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="pairingTabContent">
+                            
+                            <!-- ================= TAB 1: INPUT NOMOR HP ================= -->
+                            <div class="tab-pane fade show active" id="tab-phone" role="tabpanel">
+                                
+                                <!-- Step 1: Input Nomor -->
+                                <div id="phoneInputStep">
+                                    <label class="form-label small fw-bold text-dark mb-1">Masukkan Nomor WhatsApp Anda:</label>
+                                    <p class="small text-muted mb-3" style="font-size: 0.82rem;">Masukkan nomor WhatsApp aktif Anda untuk menerima 8 digit kode verifikasi di layar ini.</p>
+                                    
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text bg-light fw-bold text-dark">🇮🇩 +62</span>
+                                        <input type="text" id="inputPairingPhone" class="form-control form-control-lg" placeholder="81234567890" autofocus>
+                                    </div>
+
+                                    <button type="button" onclick="requestPairingCodeAction()" class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow-sm" id="btnRequestCode">
+                                        <i class="bi bi-key-fill me-1"></i> Dapatkan Kode Verifikasi 8 Digit
+                                    </button>
+                                </div>
+
+                                <!-- Step 2: Tampilan 8 Digit Kode Verifikasi -->
+                                <div id="phoneCodeDisplayStep" class="d-none text-center">
+                                    <div class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-semibold mb-2">
+                                        Nomor: <span id="displayTargetPhone">+62 812-xxxx-xxxx</span>
+                                    </div>
+                                    
+                                    <h6 class="fw-bold text-dark mt-1 mb-0">Kode Verifikasi WhatsApp Anda:</h6>
+                                    
+                                    <!-- 8 Digit Code Blocks -->
+                                    <div class="code-tile-container" id="codeTileWrapper">
+                                        <!-- Tiles generated dynamically -->
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="copyPairingCode()">
+                                            <i class="bi bi-clipboard me-1"></i> <span id="copyCodeText">Salin Kode</span>
+                                        </button>
+                                    </div>
+
+                                    <div class="bg-light rounded-3 p-3 text-start mb-3 border">
+                                        <strong class="small text-dark d-block mb-1"><i class="bi bi-info-circle text-primary me-1"></i> Cara Memasukkan di HP:</strong>
+                                        <ol class="ps-3 mb-0 small text-muted" style="line-height: 1.6; font-size: 0.82rem;">
+                                            <li>Buka <strong>WhatsApp di HP</strong> > Menu <strong>(⋮) / Pengaturan</strong>.</li>
+                                            <li>Pilih <strong>Perangkat Tertaut</strong> > Ketuk <strong>Tautkan Perangkat</strong>.</li>
+                                            <li>Ketuk opsi <strong>"Tautkan dengan nomor telepon saja"</strong> di bagian bawah layar kamera.</li>
+                                            <li>Ketik 8 karakter kode verifikasi di atas ke HP Anda.</li>
+                                        </ol>
+                                    </div>
+
+                                    <div class="d-flex align-items-center justify-content-center gap-2 small text-muted">
+                                        <span class="spinner-grow spinner-grow-sm text-success" role="status"></span>
+                                        <span>Menunggu Anda memasukkan kode di HP...</span>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <button type="button" class="btn btn-sm btn-link text-muted" onclick="backToPhoneInput()">
+                                            <i class="bi bi-arrow-left me-1"></i> Gunakan Nomor Lain
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- ================= TAB 2: SCAN QR CODE ================= -->
+                            <div class="tab-pane fade" id="tab-qr" role="tabpanel">
+                                <div class="text-center">
+                                    <p class="small text-muted mb-2">Buka WhatsApp > Perangkat Tertaut > Tautkan Perangkat, lalu scan QR:</p>
+                                    <div class="qr-card-box">
+                                        <div id="qrcodeCanvas"></div>
+                                        <div class="small text-muted mt-2" id="qrInstructionText">
+                                            <i class="bi bi-arrow-repeat spin-icon me-1"></i> Menunggu pindaian...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- State: Sudah Terhubung (Success) -->
+                    <div id="modalConnectedSection" class="py-4 text-center d-none">
+                        <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex p-3 mb-3">
+                            <i class="bi bi-check-circle-fill" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="fw-bold text-success mb-1">WhatsApp Berhasil Ditautkan!</h5>
+                        <p class="small text-muted mb-3">Akun WhatsApp Anda sudah terhubung dan siap digunakan untuk mengirim blast pesan otomatis.</p>
+                        
+                        <div class="bg-light p-3 rounded-3 text-start mb-3 border">
+                            <div class="small text-muted">Akun Terhubung:</div>
+                            <div class="fw-bold text-dark fs-6" id="modalConnectedName">Rumah Etnik Papua</div>
+                            <div class="small text-success fw-semibold" id="modalConnectedPhone">+62 812-xxxx-xxxx</div>
+                        </div>
+
+                        <button type="button" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal">
+                            Mulai Gunakan Sistem Blast
+                        </button>
+                    </div>
+
+                </div>
+                
+                <div class="modal-footer border-0 pt-0 justify-content-center">
+                    <button type="button" class="btn btn-sm btn-link text-muted" data-bs-dismiss="modal">Tutup Jendela</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- MODAL 2: UJI COBA KIRIM 1 PESAN KE NOMOR ANDA -->
+    <!-- ======================================================= -->
+    <div class="modal fade" id="testModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
+                        <i class="bi bi-send-check text-primary"></i>
+                        Uji Coba Kirim 1 Pesan
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="small text-muted mb-3">Kirim 1 pesan uji coba ke nomor Anda sendiri terlebih dahulu untuk memastikan akun WhatsApp berfungsi dengan normal.</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Nomor WhatsApp Penerima Uji Coba:</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-telephone"></i></span>
+                            <input type="text" id="testPhoneNumber" class="form-control" placeholder="Contoh: 081234567890">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Isi Pesan Uji Coba:</label>
+                        <textarea id="testMessageText" class="form-control" rows="4"></textarea>
+                    </div>
+
+                    <button type="button" onclick="sendTestMessage()" class="btn btn-primary w-100 rounded-pill py-2 fw-bold" id="btnSendTest">
+                        <i class="bi bi-send-fill me-1"></i> Kirim Pesan Uji Coba Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- MODAL 3: PREVIEW PESAN ROW DETAIL -->
+    <!-- ======================================================= -->
+    <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
+                        <i class="bi bi-chat-dots-fill text-success"></i>
+                        Preview Pesan Personal
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="small text-muted mb-2">Penerima: <strong id="modalRecipientName" class="text-dark">-</strong> (<span id="modalRecipientPhone">-</span>)</div>
+                    <div class="wa-simulator-wrapper mt-2">
+                        <div class="wa-msg-bubble">
+                            <div id="modalMessageBody"></div>
+                            <div class="wa-msg-meta">
+                                <span>Sekarang</span>
+                                <i class="bi bi-check2-all"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts: jQuery, Bootstrap 5 JS, DataTables, PapaParse, SweetAlert2, Canvas-Confetti, QRCodeJS, SheetJS -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- SheetJS Library for Real Excel (.xlsx) support -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <script>
+        // Gunakan http://localhost:3000 hanya jika halaman dibuka langsung via file:///
+        const API_BASE = (window.location.protocol === 'file:') ? 'http://localhost:3000' : '';
+        
+        let parsedContacts = [];
+        let table;
+        let previewModalInstance;
+        let qrModalInstance;
+        let testModalInstance;
+        let qrCodeRenderer = null;
+        let lastQrString = "";
+        let isWhatsAppReady = false;
+        let activePairingCode = "";
+
+        // Inisialisasi saat dokumen siap
+        $(document).ready(function() {
+            previewModalInstance = new bootstrap.Modal(document.getElementById('previewModal'));
+            qrModalInstance = new bootstrap.Modal(document.getElementById('qrModal'));
+            testModalInstance = new bootstrap.Modal(document.getElementById('testModal'));
+            
+            table = $('#contactsTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "🔍 Cari kontak / no WA...",
+                    lengthMenu: "Tampilkan _MENU_ data",
+                    info: "Menampilkan _START_ s/d _END_ dari _TOTAL_ kontak",
+                    infoEmpty: "Tidak ada data",
+                    zeroRecords: "Kontak tidak ditemukan",
+                    paginate: {
+                        first: "Pertama",
+                        last: "Terakhir",
+                        next: "›",
+                        previous: "‹"
+                    }
+                },
+                columnDefs: [
+                    { orderable: false, targets: [0, 4, 5] },
+                    { className: "text-center", targets: [0, 5] }
+                ]
+            });
+
+            // Set waktu preview WhatsApp
+            const now = new Date();
+            document.getElementById('previewTime').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+            // Listeners template textarea
+            const msgInput = document.getElementById('messageTemplate');
+            msgInput.addEventListener('input', function() {
+                updateCharCounter();
+                updateMessagePreview();
+            });
+
+            // Inisialisasi konfigurasi Bot AI & Knowledge Base
+            loadAiConfig();
+
+            const aiKnowledgeInput = document.getElementById('aiKnowledgeText');
+            if (aiKnowledgeInput) {
+                aiKnowledgeInput.addEventListener('input', function() {
+                    const count = this.value.length;
+                    document.getElementById('aiKnowledgeCharCount').innerText = `${count} Karakter`;
+                });
+            }
+
+            // Enter key trigger pada input nomor HP
+            document.getElementById('inputPairingPhone').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    requestPairingCodeAction();
+                }
+            });
+
+            updateCharCounter();
+            updateMessagePreview();
+            setupDropzone();
+
+            // Mulai polling status WhatsApp secara berkala
+            checkServerStatus();
+            setInterval(checkServerStatus, 2500);
+        });
+
+        // Request Pairing Code dari Backend
+        async function requestPairingCodeAction() {
+            const rawPhone = document.getElementById('inputPairingPhone').value.trim();
+            const btn = document.getElementById('btnRequestCode');
+
+            if (!rawPhone) {
+                Swal.fire('Nomor Kosong', 'Harap masukkan nomor WhatsApp Anda (contoh: 081234567890).', 'warning');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Meminta Kode Verifikasi...';
+
+            try {
+                const res = await fetch(`${API_BASE}/request-pairing-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: rawPhone })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success && data.code) {
+                    activePairingCode = data.code;
+                    document.getElementById('displayTargetPhone').innerText = `+${data.formattedNumber}`;
+                    renderPairingCodeTiles(data.code);
+                    
+                    document.getElementById('phoneInputStep').classList.add('d-none');
+                    document.getElementById('phoneCodeDisplayStep').classList.remove('d-none');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Mendapatkan Kode',
+                        text: data.message || 'Pastikan nomor WhatsApp Anda aktif.',
+                        confirmButtonColor: '#128c7e'
+                    });
+                }
+            } catch(e) {
+                Swal.fire('Error', 'Gagal menghubungi server: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-key-fill me-1"></i> Dapatkan Kode Verifikasi 8 Digit';
+            }
+        }
+
+        // Render Kotak Karakter Kode Verifikasi (ABCD-1234)
+        function renderPairingCodeTiles(code) {
+            const container = document.getElementById('codeTileWrapper');
+            container.innerHTML = '';
+
+            const cleanCode = code.replace(/[^A-Za-z0-9]/g, '');
+            
+            for (let i = 0; i < cleanCode.length; i++) {
+                if (i === 4) {
+                    const divider = document.createElement('div');
+                    divider.className = 'code-divider';
+                    divider.innerText = '-';
+                    container.appendChild(divider);
+                }
+                const tile = document.createElement('div');
+                tile.className = 'code-tile';
+                tile.innerText = cleanCode[i];
+                container.appendChild(tile);
+            }
+        }
+
+        // Salin Kode ke Clipboard
+        function copyPairingCode() {
+            if (!activePairingCode) return;
+            navigator.clipboard.writeText(activePairingCode).then(() => {
+                const label = document.getElementById('copyCodeText');
+                label.innerText = 'Kode Tersalin!';
+                setTimeout(() => { label.innerText = 'Salin Kode'; }, 2000);
+            });
+        }
+
+        // Kembali ke input nomor
+        function backToPhoneInput() {
+            document.getElementById('phoneCodeDisplayStep').classList.add('d-none');
+            document.getElementById('phoneInputStep').classList.remove('d-none');
+            document.getElementById('inputPairingPhone').focus();
+        }
+
+        let wasPreviouslyReady = false;
+
+        // Cek status server WhatsApp & QR Code secara realtime
+        async function checkServerStatus() {
+            try {
+                const res = await fetch(`${API_BASE}/status`);
+                if (!res.ok) throw new Error('Server offline');
+                const data = await res.json();
+                
+                const badge = document.getElementById('waStatusBadge');
+                const label = document.getElementById('waStatusLabel');
+                const pulse = document.getElementById('waStatusPulse');
+                const accountCard = document.getElementById('waAccountCard');
+                const waWarning = document.getElementById('waNotConnectedWarning');
+                const btnQrText = document.getElementById('btnQrModalText');
+
+                isWhatsAppReady = data.ready;
+
+                if (data.ready) {
+                    // WhatsApp Terhubung
+                    badge.className = 'wa-connected-badge';
+                    pulse.className = 'pulse-dot';
+                    label.innerText = 'WhatsApp Terhubung';
+                    btnQrText.innerText = 'Kelola Akun WhatsApp';
+
+                    if (data.user) {
+                        document.getElementById('connectedUserName').innerText = data.user.name || 'Akun WhatsApp Aktif';
+                        document.getElementById('connectedUserPhone').innerText = data.user.number ? `+${data.user.number}` : 'Nomor Terhubung';
+                        document.getElementById('modalConnectedName').innerText = data.user.name || 'Akun WhatsApp';
+                        document.getElementById('modalConnectedPhone').innerText = data.user.number ? `+${data.user.number}` : '';
+                    }
+
+                    accountCard.classList.remove('d-none');
+                    waWarning.classList.add('d-none');
+
+                    document.getElementById('modalNotConnectedSection').classList.add('d-none');
+                    document.getElementById('modalConnectedSection').classList.remove('d-none');
+
+                    // Tampilkan notifikasi toast jika baru saja terhubung
+                    if (!wasPreviouslyReady && data.user) {
+                        wasPreviouslyReady = true;
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'WhatsApp Berhasil Ditautkan!',
+                            html: `Akun <strong>${data.user.name || 'WhatsApp'}</strong> (+${data.user.number}) siap digunakan.`,
+                            confirmButtonColor: '#128c7e'
+                        });
+                    }
+
+                    // Aktifkan tombol blast jika ada kontak
+                    if (parsedContacts.length > 0) {
+                        document.getElementById('btnKirim').disabled = false;
+                    }
+
+                } else {
+                    // WhatsApp Belum Terhubung
+                    badge.className = 'wa-disconnected-badge';
+                    pulse.className = 'pulse-dot-red';
+                    label.innerText = data.status || 'WhatsApp Belum Tertaut';
+                    btnQrText.innerText = 'Tautkan Nomor WhatsApp';
+
+                    accountCard.classList.add('d-none');
+                    waWarning.classList.remove('d-none');
+
+                    document.getElementById('modalNotConnectedSection').classList.remove('d-none');
+                    document.getElementById('modalConnectedSection').classList.add('d-none');
+
+                    // Jika ada QR code
+                    if (data.qr && data.qr !== lastQrString) {
+                        lastQrString = data.qr;
+                        renderQrCode(data.qr);
+                    }
+
+                    document.getElementById('btnKirim').disabled = true;
+                }
+
+            } catch (e) {
+                const badge = document.getElementById('waStatusBadge');
+                const label = document.getElementById('waStatusLabel');
+                const pulse = document.getElementById('waStatusPulse');
+                badge.className = 'wa-disconnected-badge';
+                pulse.className = 'pulse-dot-red';
+                label.innerText = 'Server Offline (Node.js mati)';
+                document.getElementById('btnKirim').disabled = true;
+            }
+        }
+
+        // Render QR Code ke Canvas
+        function renderQrCode(qrText) {
+            const container = document.getElementById('qrcodeCanvas');
+            container.innerHTML = '';
+            
+            qrCodeRenderer = new QRCode(container, {
+                text: qrText,
+                width: 200,
+                height: 200,
+                colorDark: "#111b21",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+
+        // Buka Modal Tautkan WhatsApp
+        function openQrModal() {
+            if (isWhatsAppReady) {
+                document.getElementById('modalNotConnectedSection').classList.add('d-none');
+                document.getElementById('modalConnectedSection').classList.remove('d-none');
+            } else {
+                document.getElementById('modalNotConnectedSection').classList.remove('d-none');
+                document.getElementById('modalConnectedSection').classList.add('d-none');
+            }
+            qrModalInstance.show();
+        }
+
+        // Konfirmasi Logout WhatsApp
+        function confirmLogout() {
+            Swal.fire({
+                title: 'Putuskan Akun WhatsApp?',
+                text: 'Sesi akun ini akan keluar dan Anda dapat menautkan nomor WhatsApp yang baru.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Logout',
+                cancelButtonText: 'Batal'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        Swal.fire({
+                            title: 'Memproses Logout...',
+                            allowOutsideClick: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+
+                        const res = await fetch(`${API_BASE}/logout`, { method: 'POST' });
+                        const data = await res.json();
+                        
+                        lastQrString = "";
+                        isWhatsAppReady = false;
+                        activePairingCode = "";
+                        backToPhoneInput();
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil Logout',
+                            text: 'Silakan masukkan nomor baru untuk menautkan WhatsApp.',
+                            confirmButtonColor: '#128c7e'
+                        });
+
+                        openQrModal();
+                    } catch(err) {
+                        Swal.fire('Error', 'Gagal memproses logout: ' + err.message, 'error');
+                    }
+                }
+            });
+        }
+
+        // Buka Modal Uji Coba Kirim 1 Pesan
+        function openTestModal() {
+            const template = document.getElementById('messageTemplate').value;
+            const sampleMsg = formatMessage(template, {
+                NAMA: 'Budi (Test)',
+                PERUSAHAAN: 'Perusahaan Contoh',
+                VIDEO: 'https://youtu.be/profil-etnik-papua'
+            });
+            document.getElementById('testMessageText').value = sampleMsg;
+            testModalInstance.show();
+        }
+
+        // Eksekusi Kirim 1 Pesan Uji Coba
+        async function sendTestMessage() {
+            const phone = document.getElementById('testPhoneNumber').value.trim();
+            const message = document.getElementById('testMessageText').value.trim();
+            const btn = document.getElementById('btnSendTest');
+
+            if (!phone) {
+                Swal.fire('Nomor Kosong', 'Harap masukkan nomor WhatsApp penerima uji coba.', 'warning');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Mengirim...';
+
+            try {
+                const res = await fetch(`${API_BASE}/send-test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, message })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    testModalInstance.hide();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Uji Coba Berhasil!',
+                        text: data.message,
+                        confirmButtonColor: '#128c7e'
+                    });
+                } else {
+                    Swal.fire('Gagal Mengirim', data.message || 'Terjadi kesalahan.', 'error');
+                }
+            } catch(e) {
+                Swal.fire('Error', 'Gagal menghubungi server: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-send-fill me-1"></i> Kirim Pesan Uji Coba Sekarang';
+            }
+        }
+
+        // Setup Drag & Drop CSV
+        function setupDropzone() {
+            const dropzone = document.getElementById('dropzoneBox');
+            const fileInput = document.getElementById('csvFile');
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.add('dragover');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.remove('dragover');
+                }, false);
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFileUpload(files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0]);
+                }
+            });
+        }
+
+        // Handle File Upload (Excel .xlsx/.xls atau CSV .csv)
+        function handleFileUpload(file) {
+            const fileName = file.name.toLowerCase();
+            
+            document.getElementById('fileNameLabel').innerText = file.name;
+            document.getElementById('fileSizeLabel').innerText = (file.size / 1024).toFixed(1) + ' KB';
+            document.getElementById('fileInfoCard').classList.remove('d-none');
+
+            if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                // Parsing format Excel (.xlsx / .xls)
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        // raw: false agar nomor telepon dengan awalan 0 tetap terbaca sebagai string
+                        const rows = XLSX.utils.sheet_to_json(worksheet, { defval: "", raw: false });
+                        processParsedContacts(rows, file.name);
+                    } catch (err) {
+                        Swal.fire('Gagal Membaca Excel', err.message, 'error');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+
+            } else if (fileName.endsWith('.csv')) {
+                // Parsing format CSV
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        processParsedContacts(results.data, file.name);
+                    },
+                    error: function(err) {
+                        Swal.fire('Gagal Membaca CSV', err.message, 'error');
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Format File Salah',
+                    text: 'Silakan upload file berformat Excel (.xlsx / .xls) atau CSV (.csv)',
+                    confirmButtonColor: '#128c7e'
+                });
+                resetFile();
+            }
+        }
+
+        // Proses Data Kontak yang Sudah di-parse
+        function processParsedContacts(rows, fileName) {
+            parsedContacts = rows.filter(row => row.NO_WA || row.NAMA || row.PERUSAHAAN);
+            
+            if (parsedContacts.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Data Kosong',
+                    text: 'File tidak memiliki baris data kontak yang valid.',
+                    confirmButtonColor: '#128c7e'
+                });
+                resetFile();
+                return;
+            }
+
+            renderTableData();
+            populatePreviewSelector();
+            updateStatistics();
+            updateMessagePreview();
+
+            document.getElementById('emptyTablePlaceholder').classList.add('d-none');
+            
+            if (isWhatsAppReady) {
+                document.getElementById('btnKirim').disabled = false;
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Data Kontak Berhasil Dimuat!',
+                html: `Berhasil membaca <strong>${parsedContacts.length} kontak</strong> dengan kolom terpisah rapi.`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+
+        // Render Data ke DataTable dengan Status Pengiriman
+        function renderTableData(filteredData = null) {
+            table.clear();
+            const dataToRender = filteredData || parsedContacts;
+            
+            dataToRender.forEach((c, index) => {
+                const originalIndex = parsedContacts.indexOf(c);
+                const noWa = c.NO_WA ? String(c.NO_WA).trim() : '';
+                const nama = c.NAMA ? String(c.NAMA).trim() : '-';
+                const perusahaan = c.PERUSAHAAN ? String(c.PERUSAHAAN).trim() : '-';
+                const video = c.VIDEO ? String(c.VIDEO).trim() : '';
+                const status = c.status || 'Menunggu';
+                const reason = c.reason || '';
+
+                let formattedPhone = noWa;
+                if (!noWa) {
+                    formattedPhone = '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1">Kosong</span>';
+                } else {
+                    formattedPhone = `<span class="phone-badge"><i class="bi bi-telephone"></i> ${noWa}</span>`;
+                }
+
+                let statusBadge = '';
+                if (status === 'Sukses' || status === 'Terkirim') {
+                    statusBadge = `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1"><i class="bi bi-check-circle-fill me-1"></i> Terkirim</span>`;
+                } else if (status === 'Gagal') {
+                    statusBadge = `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1 text-wrap text-start" title="${reason}"><i class="bi bi-x-circle-fill me-1"></i> Gagal: ${reason}</span>`;
+                } else {
+                    statusBadge = `<span class="badge bg-light text-muted border px-2 py-1"><i class="bi bi-clock me-1"></i> Menunggu</span>`;
+                }
+
+                const actionBtn = `
+                    <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openRowPreview(${originalIndex >= 0 ? originalIndex : index})" title="Preview pesan untuk ${nama}">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                `;
+
+                table.row.add([
+                    index + 1,
+                    formattedPhone,
+                    `<strong>${nama}</strong>`,
+                    perusahaan,
+                    statusBadge,
+                    actionBtn
+                ]);
+            });
+
+            table.draw();
+            updateFilterCounts();
+        }
+
+        // Filter Tabel Berdasarkan Status (Semua / Terkirim / Gagal)
+        let currentFilterStatus = 'ALL';
+        function applyStatusFilter(statusType) {
+            currentFilterStatus = statusType;
+            
+            document.getElementById('btnFilterAll').classList.remove('active', 'btn-secondary');
+            document.getElementById('btnFilterAll').classList.add('btn-outline-secondary');
+            
+            document.getElementById('btnFilterSuccess').classList.remove('active', 'btn-success', 'text-white');
+            document.getElementById('btnFilterSuccess').classList.add('btn-outline-success');
+            
+            document.getElementById('btnFilterFailed').classList.remove('active', 'btn-danger', 'text-white');
+            document.getElementById('btnFilterFailed').classList.add('btn-outline-danger');
+
+            if (statusType === 'ALL') {
+                document.getElementById('btnFilterAll').classList.add('active', 'btn-secondary');
+                document.getElementById('btnFilterAll').classList.remove('btn-outline-secondary');
+                document.getElementById('activeFilterLabel').innerHTML = 'Menampilkan: <strong>Semua Kontak</strong>';
+                renderTableData(parsedContacts);
+            } else if (statusType === 'Sukses') {
+                document.getElementById('btnFilterSuccess').classList.add('active', 'btn-success', 'text-white');
+                document.getElementById('btnFilterSuccess').classList.remove('btn-outline-success');
+                document.getElementById('activeFilterLabel').innerHTML = 'Menampilkan: <strong class="text-success">Kontak Berhasil Terkirim</strong>';
+                const filtered = parsedContacts.filter(c => c.status === 'Sukses' || c.status === 'Terkirim');
+                renderTableData(filtered);
+            } else if (statusType === 'Gagal') {
+                document.getElementById('btnFilterFailed').classList.add('active', 'btn-danger', 'text-white');
+                document.getElementById('btnFilterFailed').classList.remove('btn-outline-danger');
+                document.getElementById('activeFilterLabel').innerHTML = 'Menampilkan: <strong class="text-danger">Kontak Gagal Terkirim</strong>';
+                const filtered = parsedContacts.filter(c => c.status === 'Gagal');
+                renderTableData(filtered);
+            }
+        }
+
+        // Unduh Excel Khusus Daftar Nomor yang Gagal
+        function downloadFailedContactsExcel() {
+            const failedList = parsedContacts.filter(c => c.status === 'Gagal');
+            if (failedList.length === 0) {
+                Swal.fire('Info', 'Tidak ada kontak yang berstatus gagal.', 'info');
+                return;
+            }
+
+            const data = [
+                ["NO_WA", "NAMA", "PERUSAHAAN", "STATUS", "ALASAN_GAGAL"]
+            ];
+
+            failedList.forEach(c => {
+                data.push([
+                    c.NO_WA || '-',
+                    c.NAMA || '-',
+                    c.PERUSAHAAN || '-',
+                    'Gagal Terkirim',
+                    c.reason || 'Nomor tidak terdaftar di WhatsApp / Tidak aktif'
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!cols'] = [
+                { wch: 18 },
+                { wch: 25 },
+                { wch: 30 },
+                { wch: 16 },
+                { wch: 45 }
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Kontak Gagal");
+            XLSX.writeFile(wb, "daftar_nomor_wa_gagal.xlsx");
+        }
+
+        // Kirim Ulang Hanya Kontak yang Gagal
+        function retryFailedContacts() {
+            const failedList = parsedContacts.filter(c => c.status === 'Gagal');
+            if (failedList.length === 0) {
+                Swal.fire('Info', 'Tidak ada kontak gagal untuk dikirim ulang.', 'info');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Kirim Ulang Nomor Gagal?',
+                html: `Akan memuat <strong>${failedList.length} kontak</strong> yang sebelumnya gagal untuk dikirim ulang.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Muat Kontak Gagal',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#128c7e'
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    parsedContacts = failedList.map(c => ({
+                        ...c,
+                        status: 'Menunggu',
+                        reason: ''
+                    }));
+                    
+                    document.getElementById('blastResultReportCard').classList.add('d-none');
+                    document.getElementById('btnExportFailedOnly').classList.add('d-none');
+                    
+                    applyStatusFilter('ALL');
+                    updateStatistics();
+                    populatePreviewSelector();
+                    updateMessagePreview();
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Kontak Gagal Siap Dikirim!',
+                        text: `Berhasil memuat ${parsedContacts.length} kontak. Klik tombol "Kirim WhatsApp Blast Sekarang" untuk memulai.`,
+                        confirmButtonColor: '#128c7e'
+                    });
+                }
+            });
+        }
+
+        // Update Counter Filter & Metrik
+        function updateFilterCounts() {
+            const total = parsedContacts.length;
+            const success = parsedContacts.filter(c => c.status === 'Sukses' || c.status === 'Terkirim').length;
+            const failed = parsedContacts.filter(c => c.status === 'Gagal').length;
+
+            document.getElementById('countFilterAll').innerText = total;
+            document.getElementById('countFilterSuccess').innerText = success;
+            document.getElementById('countFilterFailed').innerText = failed;
+            document.getElementById('tableRowBadge').innerText = `${total} Kontak Terdata`;
+
+            document.getElementById('statTotalContacts').innerText = total;
+            document.getElementById('statSuccessCount').innerText = success;
+            document.getElementById('statFailedCount').innerText = failed;
+        }
+
+        // Reset File CSV / Excel
+        function resetFile() {
+            document.getElementById('csvFile').value = '';
+            document.getElementById('fileInfoCard').classList.add('d-none');
+            document.getElementById('emptyTablePlaceholder').classList.remove('d-none');
+            document.getElementById('blastResultReportCard').classList.add('d-none');
+            document.getElementById('btnExportFailedOnly').classList.add('d-none');
+            document.getElementById('btnKirim').disabled = true;
+            
+            parsedContacts = [];
+            table.clear().draw();
+            updateStatistics();
+            updateFilterCounts();
+            populatePreviewSelector();
+            updateMessagePreview();
+        }
+
+        // Update Ringkasan Metrik
+        function updateStatistics() {
+            const total = parsedContacts.length;
+            const valid = parsedContacts.filter(c => c.NO_WA && String(c.NO_WA).replace(/\D/g, '').length >= 9).length;
+            const seconds = total * 3;
+
+            document.getElementById('statTotalContacts').innerText = total;
+            document.getElementById('statEstimatedTime').innerText = seconds >= 60 ? `${Math.ceil(seconds / 60)} Menit` : `${seconds} Detik`;
+            updateFilterCounts();
+        }
+
+        // Sisipkan Variabel ke Posisi Kursor
+        function insertVariable(tag) {
+            const textarea = document.getElementById('messageTemplate');
+            const startPos = textarea.selectionStart;
+            const endPos = textarea.selectionEnd;
+            const text = textarea.value;
+
+            textarea.value = text.substring(0, startPos) + tag + text.substring(endPos, text.length);
+            textarea.focus();
+            textarea.selectionStart = textarea.selectionEnd = startPos + tag.length;
+            
+            updateCharCounter();
+            updateMessagePreview();
+        }
+
+        // Update Hitungan Karakter
+        function updateCharCounter() {
+            const text = document.getElementById('messageTemplate').value;
+            document.getElementById('charCounter').innerText = `${text.length} Karakter`;
+        }
+
+        // Isi Dropdown Pilihan Kontak Preview
+        function populatePreviewSelector() {
+            const select = document.getElementById('previewContactSelector');
+            select.innerHTML = '';
+
+            if (parsedContacts.length === 0) {
+                select.innerHTML = '<option value="0">Kontak Contoh (Budi)</option>';
+                return;
+            }
+
+            parsedContacts.slice(0, 15).forEach((c, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.innerText = `${idx + 1}. ${c.NAMA || 'Tanpa Nama'} (${c.PERUSAHAAN || 'Personal'})`;
+                select.appendChild(opt);
+            });
+        }
+
+        // Format Pesan dengan Data Kontak
+        function formatMessage(template, contact) {
+            const nama = contact.NAMA || 'Bapak/Ibu Mitra';
+            const perusahaan = contact.PERUSAHAAN || 'Perusahaan Anda';
+            const video = contact.VIDEO || 'https://youtu.be/contoh-wisata-papua';
+
+            return template
+                .replace(/\[NAMA\]/g, nama)
+                .replace(/\[PERUSAHAAN\]/g, perusahaan)
+                .replace(/\[VIDEO\]/g, video);
+        }
+
+        // Update Live Message Preview di Bubble
+        function updateMessagePreview() {
+            const template = document.getElementById('messageTemplate').value;
+            const selectedIdx = parseInt(document.getElementById('previewContactSelector').value) || 0;
+            
+            let contact = {
+                NAMA: 'Budi Santoso',
+                PERUSAHAAN: 'PT Tour & Travel Nusantara',
+                VIDEO: 'https://youtu.be/pesona-etnik-papua'
+            };
+
+            if (parsedContacts.length > 0 && parsedContacts[selectedIdx]) {
+                contact = parsedContacts[selectedIdx];
+            }
+
+            const formatted = formatMessage(template, contact);
+            document.getElementById('previewMessageContent').innerText = formatted;
+        }
+
+        // Open Row Preview Modal
+        function openRowPreview(index) {
+            if (!parsedContacts[index]) return;
+            const contact = parsedContacts[index];
+            const template = document.getElementById('messageTemplate').value;
+            
+            document.getElementById('modalRecipientName').innerText = contact.NAMA || 'Tanpa Nama';
+            document.getElementById('modalRecipientPhone').innerText = contact.NO_WA || 'Nomor Tidak Ada';
+            document.getElementById('modalMessageBody').innerText = formatMessage(template, contact);
+
+            previewModalInstance.show();
+        }
+
+        // Download Template Excel (.xlsx) dengan Kolom A, B, C, D Terpisah Rapi
+        function downloadTemplateExcel() {
+            const data = [
+                ["NO_WA", "NAMA", "PERUSAHAAN", "VIDEO"],
+                ["081234567890", "Bpk. Hendra Wijaya", "PT Pesona Tour Papua", "https://youtu.be/profil-rumah-etnik"],
+                ["082198765432", "Ibu Siti Rahma", "Cahaya Wisata Nusantara", "https://youtu.be/profil-rumah-etnik"],
+                ["085211223344", "Bpk. Michael Korwa", "Papua Adventure Guide", "https://youtu.be/profil-rumah-etnik"]
+            ];
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            
+            // Atur lebar kolom agar rapi saat dibuka di WPS Office / Microsoft Excel
+            ws['!cols'] = [
+                { wch: 18 }, // Kolom A: NO_WA
+                { wch: 25 }, // Kolom B: NAMA
+                { wch: 30 }, // Kolom C: PERUSAHAAN
+                { wch: 45 }  // Kolom D: VIDEO
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Kontak WA Blast");
+            XLSX.writeFile(wb, "template_kontak_wa_blast.xlsx");
+        }
+
+        // Download Template CSV (.csv) dengan pemisah standar
+        function downloadTemplateCSV() {
+            // Semicolon delimiter dengan BOM UTF-8 agar Excel/WPS di Windows otomatis memisahkan kolom
+            const csvContent = "NO_WA;NAMA;PERUSAHAAN;VIDEO\n081234567890;Bpk. Hendra Wijaya;PT Pesona Tour Papua;https://youtu.be/profil-rumah-etnik\n082198765432;Ibu Siti Rahma;Cahaya Wisata Nusantara;https://youtu.be/profil-rumah-etnik\n085211223344;Bpk. Michael Korwa;Papua Adventure Guide;https://youtu.be/profil-rumah-etnik";
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "template_kontak_wa_blast.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function downloadTemplate() {
+            downloadTemplateExcel();
+        }
+
+        // Konfirmasi Sebelum Kirim Blast
+        function confirmAndSendBlast() {
+            if (!isWhatsAppReady) {
+                openQrModal();
+                return;
+            }
+
+            if (parsedContacts.length === 0) {
+                Swal.fire('Perhatian', 'Harap upload file CSV / Excel kontak terlebih dahulu.', 'warning');
+                return;
+            }
+
+            const total = parsedContacts.length;
+            const valid = parsedContacts.filter(c => c.NO_WA).length;
+            const estSeconds = valid * 3;
+            const estMinutes = (estSeconds / 60).toFixed(1);
+
+            Swal.fire({
+                title: 'Mulai Kirim WhatsApp Blast?',
+                html: `
+                    <div class="text-start p-2">
+                        <p class="mb-2">Sistem akan mengirim pesan WhatsApp secara otomatis dari akun Anda:</p>
+                        <ul class="text-muted small mb-3">
+                            <li><strong>Total Kontak:</strong> ${total} penerima</li>
+                            <li><strong>Penerima Valid:</strong> ${valid} nomor</li>
+                            <li><strong>Jeda Keamanan:</strong> 3 detik / pesan</li>
+                            <li><strong>Estimasi Waktu:</strong> ~${estMinutes > 1 ? estMinutes + ' menit' : estSeconds + ' detik'}</li>
+                        </ul>
+                        <div class="alert alert-info py-2 px-3 small mb-0">
+                            <i class="bi bi-info-circle-fill me-1"></i> Jangan menutup tab browser ini saat proses pengiriman sedang berlangsung.
+                        </div>
+                    </div>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#128c7e',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '<i class="bi bi-send me-1"></i> Ya, Mulai Kirim Blast!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    sendBlast();
+                }
+            });
+        }
+
+        // Eksekusi Kirim Blast ke Backend
+        async function sendBlast() {
+            const btn = document.getElementById('btnKirim');
+            const btnText = document.getElementById('btnKirimText');
+            const alertBox = document.getElementById('statusAlert');
+            const template = document.getElementById('messageTemplate').value;
+            const progressSection = document.getElementById('progressSection');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercentage = document.getElementById('progressPercentage');
+            const progressStatusText = document.getElementById('progressStatusText');
+            const progressDetailText = document.getElementById('progressDetailText');
+
+            btn.disabled = true;
+            btnText.innerText = "Sedang Mengirim Blast Otomatis...";
+            alertBox.classList.add('d-none');
+            progressSection.classList.remove('d-none');
+            
+            let currentPct = 5;
+            progressBar.style.width = currentPct + '%';
+            progressBar.style.background = '#25d366';
+            progressPercentage.innerText = currentPct + '%';
+            progressStatusText.innerText = 'Menjalankan antrean pengiriman WhatsApp...';
+
+            const total = parsedContacts.length;
+            const estSeconds = total * 3;
+            let elapsed = 0;
+
+            const interval = setInterval(() => {
+                elapsed += 1;
+                if (currentPct < 90) {
+                    currentPct = Math.min(90, Math.round((elapsed / Math.max(estSeconds, 5)) * 90));
+                    progressBar.style.width = currentPct + '%';
+                    progressPercentage.innerText = currentPct + '%';
+                    const currContact = Math.min(total, Math.ceil((currentPct / 100) * total));
+                    progressStatusText.innerText = `Mengirim ke kontak #${currContact} dari ${total}...`;
+                    progressDetailText.innerText = `Waktu berjalan: ${elapsed}s (Jeda 3 detik per pesan)`;
+                }
+            }, 1000);
+
+            try {
+                const response = await fetch(`${API_BASE}/send-blast`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contacts: parsedContacts, messageTemplate: template })
+                });
+
+                clearInterval(interval);
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || 'Gagal mengirim pesan');
+                }
+
+                // Update detail status pengiriman per kontak
+                if (result.details && Array.isArray(result.details)) {
+                    result.details.forEach(item => {
+                        if (parsedContacts[item.index]) {
+                            parsedContacts[item.index].status = item.status;
+                            parsedContacts[item.index].reason = item.reason;
+                        }
+                    });
+                }
+
+                // Render ulang tabel dengan status terbaru
+                renderTableData();
+                updateFilterCounts();
+
+                // Tampilkan banner laporan pengiriman
+                const reportCard = document.getElementById('blastResultReportCard');
+                reportCard.classList.remove('d-none');
+                document.getElementById('reportSuccessText').innerText = result.terkirim || 0;
+                document.getElementById('reportFailedText').innerText = result.gagal || 0;
+                document.getElementById('reportTotalText').innerText = result.total || parsedContacts.length;
+
+                if (result.gagal > 0) {
+                    document.getElementById('btnDownloadFailedExcel').classList.remove('d-none');
+                    document.getElementById('btnRetryFailed').classList.remove('d-none');
+                    document.getElementById('btnExportFailedOnly').classList.remove('d-none');
+                } else {
+                    document.getElementById('btnDownloadFailedExcel').classList.add('d-none');
+                    document.getElementById('btnRetryFailed').classList.add('d-none');
+                    document.getElementById('btnExportFailedOnly').classList.add('d-none');
+                }
+
+                // Selesai 100%
+                progressBar.style.width = '100%';
+                progressPercentage.innerText = '100%';
+                progressStatusText.innerText = 'Pengiriman Blast Selesai!';
+
+                // Selebrasi konfeti 🎉
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+
+                Swal.fire({
+                    icon: result.gagal > 0 ? 'warning' : 'success',
+                    title: 'WhatsApp Blast Selesai!',
+                    html: `
+                        <div class="text-center py-2">
+                            <div class="d-flex justify-content-center gap-3 mb-3">
+                                <div class="p-3 bg-success bg-opacity-10 border border-success rounded-3 text-center" style="min-width: 120px;">
+                                    <div class="fs-3 fw-bold text-success">${result.terkirim || 0}</div>
+                                    <div class="small text-muted fw-semibold">Berhasil Terkirim</div>
+                                </div>
+                                <div class="p-3 bg-danger bg-opacity-10 border border-danger rounded-3 text-center" style="min-width: 120px;">
+                                    <div class="fs-3 fw-bold text-danger">${result.gagal || 0}</div>
+                                    <div class="small text-muted fw-semibold">Gagal Terkirim</div>
+                                </div>
+                            </div>
+                            <p class="small text-muted mb-0">Rincian status pengiriman dan nomor yang gagal dapat Anda lihat langsung pada tabel atau diunduh sebagai file Excel.</p>
+                        </div>
+                    `,
+                    confirmButtonColor: '#128c7e'
+                });
+
+                alertBox.className = "alert alert-success d-flex align-items-center gap-2 rounded-3 py-2 px-3 mb-3";
+                alertBox.innerHTML = `<i class="bi bi-check-circle-fill fs-5"></i> <div><strong>Pengiriman Selesai!</strong> Berhasil: <strong>${result.terkirim}</strong>, Gagal: <strong>${result.gagal}</strong> dari total <strong>${result.total}</strong> kontak.</div>`;
+                alertBox.classList.remove('d-none');
+
+            } catch (error) {
+                clearInterval(interval);
+                progressBar.style.width = '100%';
+                progressBar.style.background = '#ef4444';
+                progressStatusText.innerText = 'Terjadi Kesalahan';
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Pengiriman Gagal',
+                    text: error.message || 'Gagal menghubungi server backend.',
+                    confirmButtonColor: '#128c7e'
+                });
+
+                alertBox.className = "alert alert-danger d-flex align-items-center gap-2 rounded-3 py-2 px-3 mb-3";
+                alertBox.innerHTML = `<i class="bi bi-exclamation-triangle-fill fs-5"></i> <div>${error.message || 'Terjadi kesalahan saat mengirim pesan.'}</div>`;
+                alertBox.classList.remove('d-none');
+            } finally {
+                btnText.innerText = "Kirim WhatsApp Blast Lagi";
+                btn.disabled = false;
+            }
+        }
+
+        // ============================================================
+        // FITUR BOT AI ASISTEN RUMAH ETNIK PAPUA
+        // ============================================================
+
+        // 1. Switch Antara Tab WhatsApp Blast dan Bot AI
+        function switchMainTab(tab) {
+            const btnBlast = document.getElementById('mainTabBlastBtn');
+            const btnAi = document.getElementById('mainTabAiBtn');
+            const viewBlast = document.getElementById('viewBlastSection');
+            const viewAi = document.getElementById('viewAiSection');
+
+            if (tab === 'blast') {
+                btnBlast.classList.add('active');
+                btnAi.classList.remove('active');
+                viewBlast.classList.remove('d-none');
+                viewAi.classList.add('d-none');
+            } else {
+                btnAi.classList.add('active');
+                btnBlast.classList.remove('active');
+                viewAi.classList.remove('d-none');
+                viewBlast.classList.add('d-none');
+            }
+        }
+
+        // 2. Muat Konfigurasi Bot AI & Knowledge Base dari Backend
+        async function loadAiConfig() {
+            try {
+                const res = await fetch(`${API_BASE}/api/ai-config`);
+                const data = await res.json();
+
+                // Set switch auto reply
+                const switchEl = document.getElementById('switchAiAutoReply');
+                if (switchEl) {
+                    switchEl.checked = !!data.autoReply;
+                }
+
+                // Set API Key placeholder jika sudah terpasang
+                const apiKeyInput = document.getElementById('inputGeminiApiKey');
+                if (apiKeyInput && data.hasApiKey) {
+                    apiKeyInput.placeholder = "API Key sudah terpasang (Google Gemini AI)";
+                }
+
+                // Set data Knowledge Base
+                if (data.knowledge) {
+                    if (document.getElementById('aiBusinessName')) {
+                        document.getElementById('aiBusinessName').value = data.knowledge.businessName || '';
+                    }
+                    if (document.getElementById('aiContactPhone')) {
+                        document.getElementById('aiContactPhone').value = data.knowledge.contactPhone || '';
+                    }
+                    if (document.getElementById('aiSystemInstruction')) {
+                        document.getElementById('aiSystemInstruction').value = data.knowledge.systemInstruction || '';
+                    }
+                    if (document.getElementById('aiKnowledgeText')) {
+                        document.getElementById('aiKnowledgeText').value = data.knowledge.knowledgeText || '';
+                        document.getElementById('aiKnowledgeCharCount').innerText = `${(data.knowledge.knowledgeText || '').length} Karakter`;
+                    }
+                }
+            } catch (err) {
+                console.warn('[AI Config] Gagal memuat pengaturan AI:', err.message);
+            }
+        }
+
+        // 3. Toggle Visibility API Key Input
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('inputGeminiApiKey');
+            const icon = document.getElementById('iconShowKey');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+
+        // 4. Simpan Google Gemini API Key
+        async function saveApiKeyAction() {
+            const apiKeyInput = document.getElementById('inputGeminiApiKey');
+            const keyVal = apiKeyInput.value.trim();
+
+            if (!keyVal) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'API Key Kosong',
+                    text: 'Silakan masukkan Gemini API Key yang didapatkan dari Google AI Studio.',
+                    confirmButtonColor: '#128c7e'
+                });
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/ai-config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ apiKey: keyVal })
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'API Key Disimpan!',
+                        text: 'Kunci Google Gemini AI berhasil disimpan dan siap digunakan.',
+                        confirmButtonColor: '#128c7e'
+                    });
+                    apiKeyInput.value = '';
+                    apiKeyInput.placeholder = 'API Key sudah terpasang (Google Gemini AI)';
+                } else {
+                    throw new Error(result.message || 'Gagal menyimpan API Key');
+                }
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Menyimpan',
+                    text: err.message,
+                    confirmButtonColor: '#128c7e'
+                });
+            }
+        }
+
+        // 5. Toggle Sakelar Auto-Reply WhatsApp
+        async function toggleAiAutoReply(isChecked) {
+            try {
+                const res = await fetch(`${API_BASE}/api/ai-config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ autoReply: isChecked })
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: isChecked ? 'success' : 'info',
+                        title: isChecked ? 'Auto-Reply AI Aktif 🟢' : 'Auto-Reply AI Dinonaktifkan ⚪',
+                        text: isChecked 
+                            ? 'Bot AI akan otomatis membalas setiap pesan WhatsApp masuk dari calon tamu.' 
+                            : 'Bot AI tidak akan membalas pesan WhatsApp secara otomatis.',
+                        confirmButtonColor: '#128c7e',
+                        timer: 2500
+                    });
+                }
+            } catch (err) {
+                console.error('[AI Toggle Error]:', err);
+            }
+        }
+
+        // 6. Simpan Knowledge Base Rumah Etnik Papua
+        async function saveKnowledgeBaseAction() {
+            const btnTop = document.getElementById('btnSaveKnowledgeTop');
+            const btnBottom = document.getElementById('btnSaveKnowledgeBottom');
+
+            const knowledgePayload = {
+                businessName: document.getElementById('aiBusinessName').value.trim(),
+                contactPhone: document.getElementById('aiContactPhone').value.trim(),
+                systemInstruction: document.getElementById('aiSystemInstruction').value.trim(),
+                knowledgeText: document.getElementById('aiKnowledgeText').value.trim()
+            };
+
+            if (btnTop) btnTop.disabled = true;
+            if (btnBottom) btnBottom.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/ai-config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ knowledge: knowledgePayload })
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pengetahuan AI Diperbarui! 🌿',
+                        text: 'Data paket, homestay, dan informasi Rumah Etnik Papua berhasil disimpan ke basis pengetahuan bot.',
+                        confirmButtonColor: '#128c7e'
+                    });
+                } else {
+                    throw new Error(result.message || 'Gagal menyimpan basis pengetahuan');
+                }
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Menyimpan',
+                    text: err.message,
+                    confirmButtonColor: '#128c7e'
+                });
+            } finally {
+                if (btnTop) btnTop.disabled = false;
+                if (btnBottom) btnBottom.disabled = false;
+            }
+        }
+
+        // 7. Shortcut Chip Prompt untuk Simulator
+        function setSimulatorPrompt(text) {
+            const input = document.getElementById('inputSimulatorMessage');
+            input.value = text;
+            sendSimulatorMessage();
+        }
+
+        // 8. Kirim Pesan pada Simulator Chat AI
+        async function sendSimulatorMessage() {
+            const input = document.getElementById('inputSimulatorMessage');
+            const messageText = input.value.trim();
+            if (!messageText) return;
+
+            const chatBox = document.getElementById('aiChatMessages');
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+            // Tambahkan Bubble Pesan User
+            const userBubble = document.createElement('div');
+            userBubble.className = 'ai-chat-bubble-user';
+            userBubble.innerHTML = `
+                <div>${escapeHtml(messageText)}</div>
+                <div class="text-end small opacity-75 mt-1" style="font-size: 0.7rem;">${timeStr}</div>
+            `;
+            chatBox.appendChild(userBubble);
+            input.value = '';
+
+            // Tambahkan Typing Indicator Bot
+            const typingBubble = document.createElement('div');
+            typingBubble.className = 'ai-chat-bubble-bot';
+            typingBubble.id = 'aiTypingBubbleTemp';
+            typingBubble.innerHTML = `
+                <div class="fw-bold small text-success mb-1">🤖 Asisten Rumah Etnik Papua</div>
+                <div class="ai-typing-indicator">
+                    <span>Sedang merespon</span>
+                    <span class="ai-typing-dot"></span>
+                    <span class="ai-typing-dot"></span>
+                    <span class="ai-typing-dot"></span>
+                </div>
+            `;
+            chatBox.appendChild(typingBubble);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/ai-test-chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: messageText })
+                });
+                const data = await res.json();
+
+                // Hapus typing indicator
+                const tempBubble = document.getElementById('aiTypingBubbleTemp');
+                if (tempBubble) tempBubble.remove();
+
+                // Tambahkan respon bot asli
+                const botBubble = document.createElement('div');
+                botBubble.className = 'ai-chat-bubble-bot';
+                
+                if (data.success) {
+                    botBubble.innerHTML = `
+                        <div class="fw-bold small text-success mb-1">🤖 Asisten Rumah Etnik Papua</div>
+                        <div>${escapeHtml(data.reply)}</div>
+                        <div class="text-end small opacity-75 mt-1" style="font-size: 0.7rem;">${timeStr}</div>
+                    `;
+                } else {
+                    botBubble.innerHTML = `
+                        <div class="fw-bold small text-danger mb-1">⚠️ Peringatan AI</div>
+                        <div class="text-danger">${escapeHtml(data.message || 'Gagal memproses jawaban AI.')}</div>
+                        <div class="small text-muted mt-2">Pastikan API Key sudah diisi di atas atau di file .env.</div>
+                    `;
+                }
+                chatBox.appendChild(botBubble);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+            } catch (err) {
+                const tempBubble = document.getElementById('aiTypingBubbleTemp');
+                if (tempBubble) tempBubble.remove();
+
+                const errBubble = document.createElement('div');
+                errBubble.className = 'ai-chat-bubble-bot';
+                errBubble.innerHTML = `
+                    <div class="fw-bold small text-danger mb-1">⚠️ Gagal Terhubung</div>
+                    <div class="text-danger">${escapeHtml(err.message)}</div>
+                `;
+                chatBox.appendChild(errBubble);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>
