@@ -82,6 +82,13 @@ let knowledgeData = {
     knowledgeText: ""
 };
 
+let aiConfig = {
+    apiKey: process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || '',
+    provider: process.env.AI_PROVIDER || 'auto',
+    autoReply: process.env.AI_AUTO_REPLY === 'true',
+    modelName: ''
+};
+
 if (fs.existsSync(KNOWLEDGE_FILE)) {
     try {
         const rawKnowledge = JSON.parse(fs.readFileSync(KNOWLEDGE_FILE, 'utf8'));
