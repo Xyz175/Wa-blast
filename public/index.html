@@ -2778,6 +2778,24 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
             errBox.classList.add('d-none');
 
             try {
+                // Hardcode bypass untuk Dyreza175
+                if (email === 'dyreza175@gmail.com' && pass === 'Papeda12') {
+                    window.firebaseIdToken = 'local-bypass-token';
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('mainAppContainer').style.display = 'block';
+                    
+                    // Tambahkan tombol logout
+                    const headerBtns = document.querySelector('.d-flex.align-items-center.gap-2.flex-wrap');
+                    const btnLogout = document.createElement('button');
+                    btnLogout.className = 'btn btn-sm btn-outline-danger rounded-pill px-3 ms-2';
+                    btnLogout.innerHTML = '<i class="bi bi-door-closed me-1"></i> Keluar';
+                    btnLogout.onclick = () => location.reload();
+                    if (headerBtns && !headerBtns.querySelector('.btn-outline-danger.ms-2')) {
+                        headerBtns.appendChild(btnLogout);
+                    }
+                    return;
+                }
+
                 if (window.signInWithEmailAndPassword && window.firebaseAuth) {
                     await window.signInWithEmailAndPassword(window.firebaseAuth, email, pass);
                 } else {
