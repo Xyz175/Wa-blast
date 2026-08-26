@@ -413,6 +413,19 @@ client.on('disconnected', (reason) => {
 const processedMessages = new Set();
 
 // Handler terpusat untuk memproses pesan masuk WhatsApp
+// Logging helper - reduce rate
+const LOG_LEVEL = process.env.LOG_LEVEL || 'warn'; // warn, info, debug
+function shouldLog(level) {
+    const levels = { error: 0, warn: 1, info: 2, debug: 3 };
+    const currentLevel = levels[LOG_LEVEL] || 1;
+    return levels[level] <= currentLevel;
+}
+
+// Set untuk mencegah duplikasi balasan jika event terpanggil ganda
+const processedMessages = new Set();
+const lastProcessedMessageId = {};
+
+// Handler terpusat untuk memproses pesan masuk WhatsApp
 async function handleIncomingMessage(msg, eventSource) {
     if (!msg) return;
 
@@ -422,57 +435,40 @@ async function handleIncomingMessage(msg, eventSource) {
     const isGroup = from.includes('@g.us');
     const isStatus = msg.isStatus || from === 'status@broadcast';
 
-    // Log setiap aktivitas pesan masuk ke console / Railway logs
-    console.log(`\n--------------------------------------------------`);
-    console.log(`[WhatsApp Inbound (${eventSource})] Pengirim: ${from} | fromMe: ${isFromMe} | Tipe: ${msg.type}`);
-    console.log(`[WhatsApp Inbound] Pesan: "${body || '<Media/Non-text>'}"`);
-
     // 1. Abaikan jika pesan dikirim dari diri sendiri (bot sendiri)
     if (isFromMe) {
-        console.log(`[Filter Inbound] Pesan berasal dari akun bot sendiri (fromMe: true). Diabaikan.`);
-        console.log(`--------------------------------------------------\n`);
+        if (shouldLog('debug')) console.log(`[Filter] Own message - skipped`);
         return;
     }
 
     // 2. Abaikan pesan dari grup atau status
-    if (isGroup) {
-        console.log(`[Filter Inbound] Pesan dari grup (${from}) diabaikan.`);
-        console.log(`--------------------------------------------------\n`);
-        return;
-    }
-    if (isStatus) {
-        console.log(`[Filter Inbound] Status update diabaikan.`);
-        console.log(`--------------------------------------------------\n`);
+    if (isGroup || isStatus) {
+        if (shouldLog('debug')) console.log(`[Filter] ${isGroup ? 'Group' : 'Status'} message - skipped`);
         return;
     }
 
     // 3. Pastikan ada teks
     if (!body) {
-        console.log(`[Filter Inbound] Pesan tidak memiliki teks (stiker/audio/gambar).`);
-        console.log(`--------------------------------------------------\n`);
+        if (shouldLog('debug')) console.log(`[Filter] Non-text message (${msg.type}) - skipped`);
         return;
     }
 
     // 4. Cek apakah fitur Auto-Reply aktif
     if (!aiConfig.autoReply) {
-        console.log(`[AI Auto-Reply DILEWATI] Fitur Auto-Reply saat ini NONAKTIF (aiConfig.autoReply = false).`);
-        console.log(`[Tips] Aktifkan sakelar Auto-Reply di Web Dashboard atau set AI_AUTO_REPLY=true di Railway Variables.`);
-        console.log(`--------------------------------------------------\n`);
         return;
     }
 
     // 5. Cek apakah API Key sudah terpasang
     const apiKey = (aiConfig.apiKey || process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || '').trim();
     if (!apiKey) {
-        console.error(`[AI Auto-Reply GAGAL] API Key belum diisi! Silakan masukkan Groq API Key di Web Dashboard.`);
-        console.log(`--------------------------------------------------\n`);
+        console.error(`[AI] API Key not configured!`);
         return;
     }
 
     // Cegah proses ganda untuk message ID yang sama
     const msgId = msg.id?._serialized || msg.id?.id || `${from}_${Date.now()}`;
     if (processedMessages.has(msgId)) {
-        console.log(`[AI Inbound] Pesan dengan ID ${msgId} sudah diproses sebelumnya.`);
+        if (shouldLog('debug')) console.log(`[Dedup] Already processed`);
         return;
     }
     processedMessages.add(msgId);
@@ -481,39 +477,43 @@ async function handleIncomingMessage(msg, eventSource) {
         processedMessages.delete(oldest);
     }
 
-    console.log(`[AI Thinking] Memproses balasan dengan Groq AI / Gemini untuk: "${body}"...`);
+    console.log(`[AI] Processing: "${body.substring(0, 60)}..."`);
 
     try {
         const aiReply = await generateAiResponse(body);
         if (aiReply) {
-            console.log(`[AI Reply Generated]: "${aiReply.substring(0, 100)}..."`);
-            
-            // Jeda 1.5 detik agar respon natural
             await new Promise(r => setTimeout(r, 1500));
             
             try {
                 await msg.reply(aiReply);
             } catch (replyErr) {
-                console.warn(`[msg.reply failed, trying sendMessage]:`, replyErr.message);
+                if (shouldLog('warn')) console.warn(`[AI] reply failed, trying sendMessage`);
                 await client.sendMessage(from, aiReply);
             }
             
-            console.log(`[AI Auto-Reply SUKSES] Berhasil dikirim ke ${from}!`);
+            console.log(`[AI] Reply sent`);
         }
     } catch (err) {
-        console.error(`[AI Auto-Reply Error]:`, err.message);
+        console.error(`[AI Error]:`, err.message);
     }
-    console.log(`--------------------------------------------------\n`);
 }
 
 // Event saat ada pesan WhatsApp masuk dari calon tamu / pelanggan
 client.on('message', async (msg) => {
+    const msgId = msg.id?._serialized || msg.id?.id;
+    // Jangan proses jika baru diproses di event message_create
+    if (msgId && lastProcessedMessageId[msgId] && Date.now() - lastProcessedMessageId[msgId] < 1000) {
+        return;
+    }
     await handleIncomingMessage(msg, 'message');
+    if (msgId) lastProcessedMessageId[msgId] = Date.now();
 });
 
 // Event cadangan message_create untuk memastikan pesan selalu tertangkap
 client.on('message_create', async (msg) => {
     if (msg.fromMe) return; // Hanya tangkap pesan dari orang lain
+    const msgId = msg.id?._serialized || msg.id?.id;
+    if (msgId) lastProcessedMessageId[msgId] = Date.now();
     await handleIncomingMessage(msg, 'message_create');
 });
 
@@ -526,17 +526,6 @@ client.initialize().catch((err) => {
 // ==========================================
 // REST API ENDPOINTS
 // ==========================================
-
-// Endpoint AI 1: Ambil Konfigurasi AI & Knowledge Base
-app.get('/api/ai-config', requireAuth, (req, res) => {
-    res.json({
-        autoReply: aiConfig.autoReply,
-        hasApiKey: !!(aiConfig.apiKey || process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY),
-        modelName: aiConfig.modelName,
-        knowledge: knowledgeData
-    });
-});
-
 // Endpoint AI 2: Simpan Konfigurasi AI & Knowledge Base
 app.post('/api/ai-config', requireAuth, async (req, res) => {
     const { apiKey, autoReply, knowledge, provider, modelName } = req.body;
