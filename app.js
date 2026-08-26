@@ -306,7 +306,7 @@ client.initialize().catch((err) => {
 app.get('/api/ai-config', (req, res) => {
     res.json({
         autoReply: aiConfig.autoReply,
-        hasApiKey: !!(aiConfig.apiKey || process.env.GEMINI_API_KEY),
+        hasApiKey: !!(aiConfig.apiKey || process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY),
         modelName: aiConfig.modelName,
         knowledge: knowledgeData
     });
@@ -338,7 +338,7 @@ app.post('/api/ai-config', (req, res) => {
         message: 'Pengaturan Bot AI & Basis Pengetahuan Rumah Etnik Papua berhasil disimpan!',
         config: {
             autoReply: aiConfig.autoReply,
-            hasApiKey: !!(aiConfig.apiKey || process.env.GEMINI_API_KEY),
+            hasApiKey: !!(aiConfig.apiKey || process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY),
             knowledge: knowledgeData
         }
     });
