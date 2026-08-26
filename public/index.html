@@ -2779,7 +2779,7 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
 
             try {
                 // Hardcode bypass untuk Dyreza175
-                if (email === 'dyreza175@gmail.com' && pass === 'Papeda12') {
+                if (email.toLowerCase() === 'dyreza175@gmail.com' && pass === 'Papeda12') {
                     window.firebaseIdToken = 'local-bypass-token';
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('mainAppContainer').style.display = 'block';
