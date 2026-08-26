@@ -59,12 +59,14 @@ let currentQr = null;
 let currentPairingCode = null;
 let userInfo = null;
 
-// Fungsi Khusus: Memanggil Groq Cloud AI (Llama 3.3 70B / Llama 3.1 8B) - Super Cepat & Kuota Gratis Sangat Besar
+// Fungsi Khusus: Memanggil Groq Cloud AI - Super Cepat & Kuota Gratis Sangat Besar
 async function callGroqAi(apiKey, systemInstruction, userMessage) {
     const candidateModels = [
-        aiConfig.modelName || 'llama-3.3-70b-versatile',
-        'llama-3.3-70b-versatile',
-        'llama-3.1-8b-instant'
+        aiConfig.modelName || 'openai/gpt-oss-120b',
+        'openai/gpt-oss-120b',
+        'openai/gpt-oss-20b',
+        'qwen/qwen3.6-27b',
+        'groq/compound'
     ];
 
     let lastError = null;
