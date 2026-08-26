@@ -30,8 +30,17 @@ const db = admin.getApps().length > 0 ? admin.firestore() : null;
 
 // Middleware Autentikasi Firebase
 async function requireAuth(req, res, next) {
+    // Jika Firebase tidak dikonfigurasi, bypass login sepenuhnya
+    if (!process.env.FIREBASE_PROJECT_ID && !process.env.FIREBASE_PRIVATE_KEY) {
+        req.user = { email: 'bypass@local', uid: 'bypass' };
+        return next();
+    }
+
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        // Izinkan endpoint tertentu diakses publik jika gagal auth
+        if (req.path === '/status') return next();
+        
         return res.status(401).json({ success: false, message: 'Akses Ditolak. Token tidak ditemukan.' });
     }
 
