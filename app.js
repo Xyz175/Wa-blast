@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const admin = require('firebase-admin');
+const cors = require('cors');
 
 // Inisialisasi Firebase Admin
 if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
@@ -29,11 +30,6 @@ const db = admin.getApps().length > 0 ? admin.firestore() : null;
 
 // Middleware Autentikasi Firebase
 async function requireAuth(req, res, next) {
-    if (admin.getApps().length === 0) {
-        // Jika tidak ada firebase, bypass auth untuk backward compatibility
-        return next();
-    }
-
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ success: false, message: 'Akses Ditolak. Token tidak ditemukan.' });
@@ -44,6 +40,11 @@ async function requireAuth(req, res, next) {
     // Hardcode bypass login untuk Dyreza175@gmail.com
     if (idToken === 'local-bypass-token') {
         req.user = { email: 'Dyreza175@gmail.com', uid: 'local-admin' };
+        return next();
+    }
+
+    if (admin.getApps().length === 0) {
+        // Jika tidak ada firebase, bypass auth untuk backward compatibility
         return next();
     }
 
@@ -58,6 +59,12 @@ async function requireAuth(req, res, next) {
 }
 
 const app = express();
+
+// Keamanan & Optimasi Payload
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.static('public'));
 
 // Konfigurasi CORS agar frontend (baik via http://localhost:3000 maupun file:///) dapat mengakses API
 app.use((req, res, next) => {
