@@ -1024,7 +1024,7 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                                 Pengaturan Bot AI WhatsApp
                             </h2>
                             <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-1 rounded-pill" id="aiModelBadge">
-                                <i class="bi bi-lightning-charge-fill me-1"></i> Google Gemini 3.6 Flash (Fast & Smart)
+                                <i class="bi bi-lightning-charge-fill me-1"></i> Groq AI (Llama 3.3 70B) / Gemini Flash
                             </span>
                         </div>
                         <div class="app-card-body">
@@ -1043,10 +1043,10 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
 
                             <!-- Input API Key -->
                             <div class="mb-2">
-                                <label class="form-label small fw-bold text-dark">Google Gemini AI API Key:</label>
+                                <label class="form-label small fw-bold text-dark">AI API Key (Groq Cloud atau Google Gemini):</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="bi bi-key-fill text-muted"></i></span>
-                                    <input type="password" id="inputGeminiApiKey" class="form-control" placeholder="Masukkan AIzaSy... (atau atur via .env)">
+                                    <input type="password" id="inputGeminiApiKey" class="form-control" placeholder="Masukkan Groq Key (gsk_...) atau Gemini Key (AIzaSy...)">
                                     <button class="btn btn-outline-secondary" type="button" onclick="toggleApiKeyVisibility()" title="Lihat/Sembunyikan Kunci">
                                         <i class="bi bi-eye" id="iconShowKey"></i>
                                     </button>
@@ -1054,8 +1054,9 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                                         <i class="bi bi-save me-1"></i> Simpan Kunci
                                     </button>
                                 </div>
-                                <div class="form-text small mt-1">
-                                    <i class="bi bi-info-circle text-primary me-1"></i> Belum punya kunci API? <a href="https://aistudio.google.com/app/apikey" target="_blank" class="fw-bold text-success text-decoration-none">Dapatkan API Key Gratis di Google AI Studio <i class="bi bi-box-arrow-up-right"></i></a>
+                                <div class="form-text small mt-2 d-flex flex-wrap gap-3">
+                                    <span><i class="bi bi-stars text-warning me-1"></i> <strong>Rekomendasi (Gratis 14.400 chat/hari):</strong> <a href="https://console.groq.com/keys" target="_blank" class="fw-bold text-success text-decoration-none">Dapatkan Groq API Key Gratis di console.groq.com <i class="bi bi-box-arrow-up-right"></i></a></span>
+                                    <span><i class="bi bi-google text-primary me-1"></i> Atau <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-secondary text-decoration-none">Google AI Studio <i class="bi bi-box-arrow-up-right"></i></a></span>
                                 </div>
                             </div>
                         </div>
@@ -2499,11 +2500,11 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                     Swal.fire({
                         icon: 'success',
                         title: 'API Key Disimpan!',
-                        text: 'Kunci Google Gemini AI berhasil disimpan dan siap digunakan.',
+                        text: 'Kunci AI (Groq / Gemini) berhasil disimpan dan siap digunakan.',
                         confirmButtonColor: '#128c7e'
                     });
                     apiKeyInput.value = '';
-                    apiKeyInput.placeholder = 'API Key sudah terpasang (Google Gemini AI)';
+                    apiKeyInput.placeholder = 'API Key sudah terpasang (Groq / Gemini AI)';
                 } else {
                     throw new Error(result.message || 'Gagal menyimpan API Key');
                 }
