@@ -82,6 +82,14 @@ let knowledgeData = {
     knowledgeText: ""
 };
 
+// INISIALISASI aiConfig DENGAN DEFAULT VALUE
+let aiConfig = {
+    apiKey: process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || '',
+    provider: process.env.AI_PROVIDER || 'auto',
+    autoReply: process.env.AI_AUTO_REPLY === 'true',
+    modelName: ''
+};
+
 if (fs.existsSync(KNOWLEDGE_FILE)) {
     try {
         const rawKnowledge = JSON.parse(fs.readFileSync(KNOWLEDGE_FILE, 'utf8'));
@@ -605,199 +613,42 @@ app.post('/request-pairing-code', requireAuth, async (req, res) => {
         console.error('[PAIRING ERROR]', err.message);
         res.status(500).json({
             success: false,
-            message: 'Gagal meminta kode verifikasi: ' + (err.message || err)
+            message: 'Gagal meminta kode verifikasi: ' + (err.message || 'Kesalahan tidak diketahui')
         });
+    }
+}
+);
+
+// 3. Endpoint Mengirim Pesan WhatsApp ke Seorang Pengguna
+app.post('/send-message', requireAuth, async (req, res) => {
+    const { to, message } = req.body;
+    
+    if (!isClientReady) {
+        return res.status(400).json({ success: false, message: 'WhatsApp belum siap. Silakan lengkapi pairing terlebih dahulu.' });
+    }
+
+    if (!to || !message) {
+        return res.status(400).json({ success: false, message: 'Nomor penerima dan pesan wajib diisi.' });
+    }
+
+    try {
+        const chatId = to.includes('@c.us') ? to : `${to}@c.us`;
+        await client.sendMessage(chatId, message);
+        res.json({ success: true, message: 'Pesan berhasil dikirim.' });
+    } catch (err) {
+        console.error('[Send Error]', err.message);
+        res.status(500).json({ success: false, message: 'Gagal mengirim pesan: ' + err.message });
     }
 });
 
-// 3. Endpoint untuk Logout / Ganti Akun WhatsApp
+// 4. Endpoint Logout / Disconnect WhatsApp
 app.post('/logout', requireAuth, async (req, res) => {
     try {
-        isClientReady = false;
-        currentQr = null;
-        currentPairingCode = null;
-        userInfo = null;
-        clientStatus = 'Sedang Logout...';
-        
         await client.logout();
-        console.log('[WhatsApp] Berhasil logout.');
-        clientStatus = 'Menyiapkan sesi baru...';
-        
-        setTimeout(() => {
-            client.initialize().catch(e => console.error('Re-init error:', e));
-        }, 1500);
-        
-        res.json({ success: true, message: 'Berhasil logout. Silakan tautkan nomor baru.' });
-    } catch (e) {
-        console.error('[WhatsApp] Gagal logout:', e.message);
-        res.status(500).json({ success: false, message: e.message });
+        res.json({ success: true, message: 'Berhasil logout dari WhatsApp.' });
+    } catch (err) {
+        console.error('[Logout Error]', err.message);
+        res.status(500).json({ success: false, message: 'Gagal logout: ' + err.message });
     }
 });
 
-// 4. Endpoint Kirim Pesan Uji Coba (Single Test Message)
-app.post('/send-test', requireAuth, async (req, res) => {
-    const { phone, message } = req.body;
-    
-    if (!isClientReady) {
-        return res.status(400).json({ 
-            success: false, 
-            message: 'WhatsApp belum terhubung. Silakan tautkan nomor terlebih dahulu.' 
-        });
-    }
-
-    if (!phone || !message) {
-        return res.status(400).json({ 
-            success: false, 
-            message: 'Nomor telepon dan pesan uji coba wajib diisi.' 
-        });
-    }
-
-    let cleanNumber = String(phone).replace(/\D/g, '');
-    if (cleanNumber.startsWith('0')) {
-        cleanNumber = '62' + cleanNumber.substring(1);
-    } else if (cleanNumber.startsWith('8')) {
-        cleanNumber = '628' + cleanNumber.substring(1);
-    }
-
-    const numberId = cleanNumber + "@c.us";
-
-    try {
-        await client.sendMessage(numberId, message);
-        console.log(`[TEST] Pesan uji coba berhasil dikirim ke: ${cleanNumber}`);
-        res.json({ success: true, message: `Pesan uji coba berhasil terkirim ke +${cleanNumber}` });
-    } catch (error) {
-        console.error(`[TEST GAGAL] Gagal mengirim ke ${cleanNumber}:`, error.message);
-        res.status(500).json({ success: false, message: error.message || 'Gagal mengirim pesan' });
-    }
-});
-
-// 5. Endpoint Kirim Pesan Blast Massal dengan Laporan Detail per Kontak
-app.post('/send-blast', requireAuth, async (req, res) => {
-    const { contacts, messageTemplate } = req.body;
-    let successCount = 0;
-    let failedCount = 0;
-    const reportDetails = [];
-
-    if (!isClientReady) {
-        return res.status(400).json({ 
-            status: 'Error', 
-            message: 'WhatsApp belum terhubung! Silakan tautkan nomor terlebih dahulu.' 
-        });
-    }
-
-    if (!contacts || !Array.isArray(contacts) || contacts.length === 0) {
-        return res.status(400).json({ 
-            status: 'Error', 
-            message: 'Data kontak kosong atau tidak valid.' 
-        });
-    }
-
-    console.log(`[BLAST] Memulai pengiriman pesan ke ${contacts.length} kontak...`);
-
-    for (let i = 0; i < contacts.length; i++) {
-        const contact = contacts[i];
-        const rawNoWa = contact.NO_WA ? String(contact.NO_WA).trim() : '';
-        const nama = contact.NAMA ? String(contact.NAMA).trim() : 'Tanpa Nama';
-        const perusahaan = contact.PERUSAHAAN ? String(contact.PERUSAHAAN).trim() : '-';
-        const video = contact.VIDEO ? String(contact.VIDEO).trim() : '';
-        
-        // Cek jika nomor kosong
-        if (!rawNoWa) {
-            failedCount++;
-            reportDetails.push({
-                index: i,
-                no_wa: '-',
-                nama: nama,
-                perusahaan: perusahaan,
-                video: video,
-                status: 'Gagal',
-                reason: 'Nomor WhatsApp Kosong / Tidak Diisi'
-            });
-            console.log(`[${i + 1}/${contacts.length}] Gagal: Nomor kosong untuk ${nama}`);
-            continue;
-        }
-
-        let cleanNumber = rawNoWa.replace(/\D/g, '');
-        if (cleanNumber.startsWith('0')) {
-            cleanNumber = '62' + cleanNumber.substring(1);
-        } else if (cleanNumber.startsWith('8')) {
-            cleanNumber = '628' + cleanNumber.substring(1);
-        }
-
-        // Cek validitas panjang nomor (Indonesia umumnya 10 - 14 digit dengan kode negara 62)
-        if (cleanNumber.length < 9) {
-            failedCount++;
-            reportDetails.push({
-                index: i,
-                no_wa: rawNoWa,
-                nama: nama,
-                perusahaan: perusahaan,
-                video: video,
-                status: 'Gagal',
-                reason: 'Nomor terlalu pendek / tidak valid'
-            });
-            console.log(`[${i + 1}/${contacts.length}] Gagal: Nomor ${rawNoWa} terlalu pendek`);
-            continue;
-        }
-
-        let finalMessage = (messageTemplate || '')
-            .replace(/\[NAMA\]/g, contact.NAMA || '')
-            .replace(/\[PERUSAHAAN\]/g, contact.PERUSAHAAN || '')
-            .replace(/\[VIDEO\]/g, contact.VIDEO || '');
-            
-        const numberId = cleanNumber + "@c.us";
-        
-        try {
-            await client.sendMessage(numberId, finalMessage);
-            successCount++;
-            reportDetails.push({
-                index: i,
-                no_wa: cleanNumber,
-                nama: nama,
-                perusahaan: perusahaan,
-                video: video,
-                status: 'Sukses',
-                reason: 'Terkirim'
-            });
-            console.log(`[${i + 1}/${contacts.length}] Sukses terkirim ke: ${nama} (+${cleanNumber})`);
-            
-            // Jeda 3 detik per pesan untuk keamanan anti-ban WhatsApp
-            if (i < contacts.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, 3000));
-            }
-        } catch (error) {
-            failedCount++;
-            const errRaw = String(error.message || error);
-            let friendlyReason = 'Gagal mengirim pesan';
-
-            if (errRaw.includes('No LID for user') || errRaw.includes('wid') || errRaw.includes('not registered') || errRaw.includes('Evaluation failed')) {
-                friendlyReason = 'Nomor tidak terdaftar di WhatsApp';
-            } else if (errRaw.includes('Rate limit') || errRaw.includes('ban')) {
-                friendlyReason = 'Dibatasi oleh WhatsApp (Rate Limit)';
-            } else {
-                friendlyReason = errRaw;
-            }
-
-            reportDetails.push({
-                index: i,
-                no_wa: cleanNumber,
-                nama: nama,
-                perusahaan: perusahaan,
-                video: video,
-                status: 'Gagal',
-                reason: friendlyReason
-            });
-            console.log(`[${i + 1}/${contacts.length}] Gagal mengirim ke +${cleanNumber} (${nama}): ${friendlyReason}`);
-        }
-    }
-    
-    console.log(`[BLAST SELESAI] Terkirim: ${successCount}, Gagal/Skip: ${failedCount}, Total: ${contacts.length}`);
-
-    res.json({ 
-        status: 'Selesai', 
-        terkirim: successCount, 
-        gagal: failedCount,
-        total: contacts.length,
-        details: reportDetails
-    });
-});
