@@ -309,7 +309,6 @@ const puppeteerConfig = {
         '--disable-accelerated-2d-canvas',
         '--no-first-run',
         '--no-zygote',
-        '--single-process', // Penting untuk Railway (hemat memory)
         '--disable-gpu',
         '--js-flags="--max-old-space-size=256"',
         '--disable-software-rasterizer',

@@ -1,0 +1,36 @@
+[providers]
+  node = {}
+
+[phases.setup]
+  nixPkgs = [
+    "nodejs",
+    "npm",
+    "chromium",
+    "nss",
+    "freetype",
+    "harfbuzz",
+    "pango",
+    "atk",
+    "cairo",
+    "gdk_pixbuf",
+    "glib",
+    "xorg.libX11",
+    "xorg.libXcomposite",
+    "xorg.libXcursor",
+    "xorg.libXdamage",
+    "xorg.libXext",
+    "xorg.libXi",
+    "xorg.libXrender",
+    "xorg.libXtst",
+    "xorg.libXrandr",
+    "alsa-lib",
+    "mesa",
+    "expat",
+    "dbus"
+  ]
+
+[phases.build]
+  cmds = ["npm install"]
+
+[phases.start]
+  cmd = "npm start"
