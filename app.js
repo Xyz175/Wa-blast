@@ -47,9 +47,10 @@ if (fs.existsSync(KNOWLEDGE_FILE)) {
 }
 
 let aiConfig = {
-    apiKey: process.env.GEMINI_API_KEY || '',
+    apiKey: process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || '',
+    provider: process.env.AI_PROVIDER || 'auto', // 'auto', 'groq', atau 'gemini'
     autoReply: process.env.AI_AUTO_REPLY === 'true',
-    modelName: 'gemini-3.6-flash'
+    modelName: ''
 };
 
 let isClientReady = false;
@@ -58,15 +59,88 @@ let currentQr = null;
 let currentPairingCode = null;
 let userInfo = null;
 
-// Fungsi Pintar: Generate Balasan Gemini AI Berdasarkan Knowledge Base Rumah Etnik Papua
+// Fungsi Khusus: Memanggil Groq Cloud AI (Llama 3.3 70B / Llama 3.1 8B) - Super Cepat & Kuota Gratis Sangat Besar
+async function callGroqAi(apiKey, systemInstruction, userMessage) {
+    const candidateModels = [
+        aiConfig.modelName || 'llama-3.3-70b-versatile',
+        'llama-3.3-70b-versatile',
+        'llama-3.1-8b-instant'
+    ];
+
+    let lastError = null;
+    for (const model of [...new Set(candidateModels)]) {
+        try {
+            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: [
+                        { role: 'system', content: systemInstruction },
+                        { role: 'user', content: userMessage }
+                    ],
+                    temperature: 0.6,
+                    max_tokens: 1024
+                })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(`Groq Error (${res.status}): ${errData.error?.message || res.statusText}`);
+            }
+
+            const data = await res.json();
+            if (data.choices && data.choices[0] && data.choices[0].message) {
+                return data.choices[0].message.content;
+            }
+            throw new Error('Format balasan Groq AI tidak valid.');
+        } catch (err) {
+            lastError = err;
+            console.warn(`[Groq AI Fallback] Gagal dengan model ${model}:`, err.message);
+        }
+    }
+    throw lastError || new Error('Gagal memanggil Groq AI.');
+}
+
+// Fungsi Khusus: Memanggil Google Gemini AI
+async function callGeminiAi(apiKey, systemInstruction, userMessage) {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const candidateModels = [
+        aiConfig.modelName || 'gemini-3.6-flash',
+        'gemini-3.6-flash',
+        'gemini-2.5-flash'
+    ];
+
+    let lastError = null;
+    for (const modelName of [...new Set(candidateModels)]) {
+        try {
+            const model = genAI.getGenerativeModel({
+                model: modelName,
+                systemInstruction: systemInstruction
+            });
+            const result = await model.generateContent(userMessage);
+            return result.response.text();
+        } catch (err) {
+            lastError = err;
+            console.warn(`[Gemini AI Fallback] Gagal dengan model ${modelName}:`, err.message);
+        }
+    }
+    throw lastError || new Error('Gagal memanggil Gemini AI.');
+}
+
+// Fungsi Utama: Generate Balasan AI Berdasarkan Knowledge Base Rumah Etnik Papua (Otomatis Mendukung Groq & Gemini)
 async function generateAiResponse(userMessage) {
-    const key = aiConfig.apiKey || process.env.GEMINI_API_KEY;
-    if (!key) {
-        throw new Error('Gemini API Key belum diatur. Silakan masukkan API Key di menu Bot AI.');
+    const rawKeys = (aiConfig.apiKey || process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || '').trim();
+    if (!rawKeys) {
+        throw new Error('API Key belum diatur. Silakan masukkan Groq API Key (gsk_...) atau Gemini API Key di menu Bot AI.');
     }
 
-    const genAI = new GoogleGenerativeAI(key);
-    
+    // Pisahkan jika pengguna memasukkan beberapa API Key (dipisah koma atau baris baru)
+    const keyList = rawKeys.split(/[\n,]+/).map(k => k.trim()).filter(Boolean);
+
     const fullSystemInstruction = `${knowledgeData.systemInstruction || 'Anda adalah Asisten Virtual Resmi Rumah Etnik Papua.'}
 
 === BASIS PENGETAHUAN RESMI RUMAH ETNIK PAPUA ===
@@ -79,29 +153,30 @@ ${knowledgeData.knowledgeText || ''}
 4. Jika pengunjung ingin melakukan reservasi/booking, tanyakan tanggal rencana kunjungan dan berapa orang, lalu sarankan untuk konfirmasi langsung ke nomor WhatsApp Pengelola: ${knowledgeData.contactPhone || '0811-4600-1602'}.
 5. Jika ada pertanyaan di luar konteks wisata/budaya/layanan Rumah Etnik Papua, jawab dengan sopan bahwa Anda adalah asisten khusus Rumah Etnik Papua.`;
 
-    const candidateModels = [
-        aiConfig.modelName || 'gemini-3.6-flash',
-        'gemini-3.6-flash',
-        'gemini-2.5-flash',
-        'gemini-1.5-flash'
-    ];
-
     let lastError = null;
-    for (const modelName of [...new Set(candidateModels)]) {
+
+    // Coba setiap API Key yang dimasukkan
+    for (let kIdx = 0; kIdx < keyList.length; kIdx++) {
+        const activeKey = keyList[kIdx];
+        const isGroq = activeKey.startsWith('gsk_') || aiConfig.provider === 'groq';
+
         try {
-            const model = genAI.getGenerativeModel({
-                model: modelName,
-                systemInstruction: fullSystemInstruction
-            });
-            const result = await model.generateContent(userMessage);
-            return result.response.text();
+            if (isGroq) {
+                return await callGroqAi(activeKey, fullSystemInstruction, userMessage);
+            } else {
+                return await callGeminiAi(activeKey, fullSystemInstruction, userMessage);
+            }
         } catch (err) {
             lastError = err;
-            console.warn(`[AI Model Fallback] Gagal dengan model ${modelName}:`, err.message);
+            const errMsg = err.message || '';
+            console.warn(`[AI Key ${kIdx + 1} Error]:`, errMsg);
+            if (errMsg.includes('429') || errMsg.includes('Quota exceeded') || errMsg.includes('rate_limit')) {
+                console.warn(`[Rotasi Key] Kuota limit pada key ke-${kIdx + 1}, beralih ke key berikutnya...`);
+            }
         }
     }
 
-    throw lastError || new Error('Gagal menghasilkan balasan AI.');
+    throw lastError || new Error('Gagal menghasilkan balasan dari AI Provider.');
 }
 
 // Simpan sesi di AppData Local (jika di Windows) atau folder lokal .wwebjs_auth (jika di Linux / Railway Cloud)
