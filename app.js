@@ -25,11 +25,11 @@ if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && proce
     console.warn('[Firebase] Konfigurasi Firebase Admin SDK tidak lengkap di .env. Mode bypass Auth aktif.');
 }
 
-const db = admin.apps.length > 0 ? admin.firestore() : null;
+const db = admin.getApps().length > 0 ? admin.firestore() : null;
 
 // Middleware Autentikasi Firebase
 async function requireAuth(req, res, next) {
-    if (!admin.apps.length) {
+    if (admin.getApps().length === 0) {
         // Jika tidak ada firebase, bypass auth untuk backward compatibility
         return next();
     }
