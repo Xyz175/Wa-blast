@@ -422,36 +422,26 @@ async function handleIncomingMessage(msg, eventSource) {
     const isGroup = from.includes('@g.us');
     const isStatus = msg.isStatus || from === 'status@broadcast';
 
-    // Log setiap aktivitas pesan masuk ke console / Railway logs
-    console.log(`\n--------------------------------------------------`);
-    console.log(`[WhatsApp Inbound (${eventSource})] Pengirim: ${from} | fromMe: ${isFromMe} | Tipe: ${msg.type}`);
-    console.log(`[WhatsApp Inbound] Pesan: "${body || '<Media/Non-text>'}"`);
+    // Abaikan pesan lama (saat sinkronisasi riwayat awal)
+    const now = Math.floor(Date.now() / 1000);
+    if (msg.timestamp && msg.timestamp < now - 60) {
+        return; // Pesan lebih lama dari 60 detik (riwayat lama), abaikan tanpa log
+    }
 
     // 1. Abaikan jika pesan dikirim dari diri sendiri (bot sendiri)
-    if (isFromMe) {
-        console.log(`[Filter Inbound] Pesan berasal dari akun bot sendiri (fromMe: true). Diabaikan.`);
-        console.log(`--------------------------------------------------\n`);
-        return;
-    }
-
+    if (isFromMe) return;
+    
     // 2. Abaikan pesan dari grup atau status
-    if (isGroup) {
-        console.log(`[Filter Inbound] Pesan dari grup (${from}) diabaikan.`);
-        console.log(`--------------------------------------------------\n`);
-        return;
-    }
-    if (isStatus) {
-        console.log(`[Filter Inbound] Status update diabaikan.`);
-        console.log(`--------------------------------------------------\n`);
-        return;
-    }
+    if (isGroup || isStatus) return;
 
     // 3. Pastikan ada teks
-    if (!body) {
-        console.log(`[Filter Inbound] Pesan tidak memiliki teks (stiker/audio/gambar).`);
-        console.log(`--------------------------------------------------\n`);
-        return;
-    }
+    if (!body) return;
+
+    // Log aktivitas pesan masuk (HANYA UNTUK PESAN BARU YANG RELEVAN)
+    console.log(`\n--------------------------------------------------`);
+    console.log(`[WhatsApp Inbound] Dari: ${from} | Tipe: ${msg.type}`);
+    console.log(`[WhatsApp Inbound] Pesan: "${body}"`);
+
 
     // 4. Cek apakah fitur Auto-Reply aktif
     if (!aiConfig.autoReply) {
