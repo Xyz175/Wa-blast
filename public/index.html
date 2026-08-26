@@ -606,8 +606,61 @@
             40% { transform: scale(1); }
         }
     </style>
+    <!-- Firebase SDKs -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+      import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+
+      // Konfigurasi Firebase dari Environment/Variabel
+      // HARAP GANTI INI DENGAN CONFIG FIREBASE ASLI
+      const firebaseConfig = {
+        apiKey: "API_KEY_ANDA",
+        authDomain: "DOMAIN_ANDA.firebaseapp.com",
+        projectId: "PROJECT_ID_ANDA",
+        storageBucket: "PROJECT_ID_ANDA.appspot.com",
+        messagingSenderId: "SENDER_ID",
+        appId: "APP_ID"
+      };
+
+      let app, auth;
+      try {
+          app = initializeApp(firebaseConfig);
+          auth = getAuth(app);
+      } catch (e) {
+          console.error("Firebase init error", e);
+      }
+
+      window.firebaseAuth = auth;
+      window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+      window.onAuthStateChanged = onAuthStateChanged;
+      window.signOut = signOut;
+    </script>
 </head>
 <body>
+    <!-- Login Screen -->
+    <div id="loginScreen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:var(--body-bg); z-index:9999; display:flex; align-items:center; justify-content:center;">
+        <div class="app-card p-5" style="max-width: 400px; width:100%; text-align:center;">
+            <div class="brand-icon-wrapper mx-auto mb-3" style="background:#25d366; color:white; font-size:32px; width:64px; height:64px;">
+                <i class="bi bi-shield-lock"></i>
+            </div>
+            <h3 class="fw-bold mb-1">Login Admin</h3>
+            <p class="text-muted small mb-4">Akses khusus Rumah Etnik Papua</p>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="mb-3 text-start">
+                    <label class="form-label small fw-bold">Email</label>
+                    <input type="email" id="loginEmail" class="form-control" required placeholder="admin@rumahetnik.com">
+                </div>
+                <div class="mb-4 text-start">
+                    <label class="form-label small fw-bold">Password</label>
+                    <input type="password" id="loginPassword" class="form-control" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-success w-100 fw-bold rounded-pill" id="btnLogin">Masuk</button>
+            </form>
+            <div id="loginError" class="text-danger small mt-3 d-none"></div>
+        </div>
+    </div>
+    <div id="mainAppContainer" style="display:none;">
 
     <!-- Header Section -->
     <header class="app-header">
@@ -677,7 +730,7 @@
                 <button class="nav-link" id="mainTabAiBtn" onclick="switchMainTab('ai')">
                     <i class="bi bi-robot"></i>
                     <span>Bot AI Rumah Etnik Papua</span>
-                    <span class="badge bg-success bg-opacity-25 text-success ms-1" style="font-size: 0.72rem;">Gemini AI</span>
+                    <span class="badge bg-success bg-opacity-25 text-success ms-1" style="font-size: 0.72rem;">Groq Llama 3.3</span>
                 </button>
             </div>
         </div>
@@ -2436,7 +2489,7 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                 // Set API Key placeholder jika sudah terpasang
                 const apiKeyInput = document.getElementById('inputGeminiApiKey');
                 if (apiKeyInput && data.hasApiKey) {
-                    apiKeyInput.placeholder = "API Key sudah terpasang (Google Gemini AI)";
+                    apiKeyInput.placeholder = "API Key sudah terpasang & aktif (Groq / Gemini AI)";
                 }
 
                 // Set data Knowledge Base
@@ -2473,7 +2526,7 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
             }
         }
 
-        // 4. Simpan Google Gemini API Key
+        // 4. Simpan Groq / Gemini API Key
         async function saveApiKeyAction() {
             const apiKeyInput = document.getElementById('inputGeminiApiKey');
             const keyVal = apiKeyInput.value.trim();
@@ -2482,7 +2535,7 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                 Swal.fire({
                     icon: 'warning',
                     title: 'API Key Kosong',
-                    text: 'Silakan masukkan Gemini API Key yang didapatkan dari Google AI Studio.',
+                    text: 'Silakan masukkan Groq API Key (gsk_...) yang didapatkan gratis dari console.groq.com.',
                     confirmButtonColor: '#128c7e'
                 });
                 return;
@@ -2500,11 +2553,11 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                     Swal.fire({
                         icon: 'success',
                         title: 'API Key Disimpan!',
-                        text: 'Kunci AI (Groq / Gemini) berhasil disimpan dan siap digunakan.',
+                        text: 'Kunci AI (Groq / Gemini) berhasil disimpan secara persisten dan siap digunakan.',
                         confirmButtonColor: '#128c7e'
                     });
                     apiKeyInput.value = '';
-                    apiKeyInput.placeholder = 'API Key sudah terpasang (Groq / Gemini AI)';
+                    apiKeyInput.placeholder = 'API Key sudah terpasang & aktif (Groq / Gemini AI)';
                 } else {
                     throw new Error(result.message || 'Gagal menyimpan API Key');
                 }
@@ -2679,6 +2732,110 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                 chatBox.scrollTop = chatBox.scrollHeight;
             }
         }
+    </script>
+    </div>
+    <script>
+        // Override Fetch for Authentication Header
+        const originalFetch = window.fetch;
+        window.firebaseIdToken = null;
+
+        window.fetch = async function() {
+            let [resource, config] = arguments;
+            const apiPaths = ['/api/', '/status', '/request-pairing-code', '/logout', '/send-test', '/send-blast'];
+            const isOurApi = typeof resource === 'string' && apiPaths.some(p => resource.includes(p));
+            
+            if (isOurApi && window.firebaseIdToken) {
+                config = config || {};
+                if (config.headers instanceof Headers) {
+                    config.headers.append('Authorization', 'Bearer ' + window.firebaseIdToken);
+                } else {
+                    config.headers = { ...config.headers, 'Authorization': 'Bearer ' + window.firebaseIdToken };
+                }
+                arguments[1] = config;
+            }
+            
+            const response = await originalFetch.apply(this, arguments);
+            // Handle 401 Unauthorized globally
+            if (response.status === 401 || response.status === 403) {
+                console.error("Unauthorized access, forcing logout");
+                if (window.signOut && window.firebaseAuth) {
+                    window.signOut(window.firebaseAuth);
+                }
+            }
+            return response;
+        };
+
+        // Handle Login Submission
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnLogin');
+            const errBox = document.getElementById('loginError');
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPassword').value;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
+            errBox.classList.add('d-none');
+
+            try {
+                if (window.signInWithEmailAndPassword && window.firebaseAuth) {
+                    await window.signInWithEmailAndPassword(window.firebaseAuth, email, pass);
+                } else {
+                    throw new Error("Firebase belum terinisialisasi. Periksa konfigurasi.");
+                }
+            } catch (error) {
+                errBox.innerText = error.message || "Gagal login. Periksa kembali kredensial Anda.";
+                errBox.classList.remove('d-none');
+                btn.disabled = false;
+                btn.innerHTML = 'Masuk';
+            }
+        }
+
+        // Add Logout Button Action
+        function logoutAdmin() {
+            if (window.signOut && window.firebaseAuth) {
+                window.signOut(window.firebaseAuth);
+            }
+        }
+
+        // Listener Status Auth
+        window.addEventListener('DOMContentLoaded', () => {
+            // Find logout button if any and bind
+            const btnLogout = document.createElement('button');
+            btnLogout.className = 'btn btn-sm btn-outline-danger rounded-pill px-3 ms-2';
+            btnLogout.innerHTML = '<i class="bi bi-door-closed me-1"></i> Keluar';
+            btnLogout.onclick = logoutAdmin;
+            
+            // Wait a bit for firebase module to load
+            setTimeout(() => {
+                if (window.onAuthStateChanged && window.firebaseAuth) {
+                    window.onAuthStateChanged(window.firebaseAuth, async (user) => {
+                        const loginScreen = document.getElementById('loginScreen');
+                        const mainApp = document.getElementById('mainAppContainer');
+                        
+                        if (user) {
+                            window.firebaseIdToken = await user.getIdToken();
+                            loginScreen.style.display = 'none';
+                            mainApp.style.display = 'block';
+                            
+                            // Letakkan tombol logout di header
+                            const headerBtns = document.querySelector('.d-flex.align-items-center.gap-2.flex-wrap');
+                            if (headerBtns && !headerBtns.contains(btnLogout)) {
+                                headerBtns.appendChild(btnLogout);
+                            }
+                        } else {
+                            window.firebaseIdToken = null;
+                            loginScreen.style.display = 'flex';
+                            mainApp.style.display = 'none';
+                            
+                            const btn = document.getElementById('btnLogin');
+                            btn.disabled = false;
+                            btn.innerHTML = 'Masuk';
+                        }
+                    });
+                }
+            }, 1000);
+        });
     </script>
 </body>
 </html>
