@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
-const { Client, LocalAuth } = require('whatsapp-web.js');
+const { Client, LocalAuth, RemoteAuth } = require('whatsapp-web.js');
+const mongoose = require('mongoose');
+const { MongoStore } = require('wwebjs-mongo');
 const qrcode = require('qrcode-terminal');
 const path = require('path');
 const fs = require('fs');
@@ -203,8 +205,9 @@ async function callGroqAi(apiKey, systemInstruction, userMessage) {
         selectedModel,
         'llama-3.3-70b-versatile',
         'llama-3.1-8b-instant',
-        'llama-3.2-3b-preview',
-        'llama-3.2-1b-preview'
+        'llama3-8b-8192',
+        'llama3-70b-8192',
+        'mixtral-8x7b-32768'
     ];
 
     let lastError = null;
@@ -380,67 +383,7 @@ if (process.env.PUPPETEER_EXECUTABLE_PATH) {
     puppeteerConfig.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
 }
 
-const client = new Client({
-    authStrategy: new LocalAuth({ dataPath: sessionPath }),
-    puppeteer: puppeteerConfig
-});
-
-// Event saat QR Code / Pairing Code siap
-client.on('qr', (qr) => {
-    isClientReady = false;
-    currentQr = qr;
-    clientStatus = 'Siap ditautkan via Nomor HP atau QR Code';
-    console.log('\n=============================================');
-    console.log('[WHATSAPP SIAP] Buka http://localhost:3000 untuk menautkan via Nomor Telepon atau QR Code.');
-    console.log('=============================================\n');
-});
-
-// Event saat proses autentikasi berhasil
-client.on('authenticated', () => {
-    clientStatus = 'Autentikasi Berhasil! Menyiapkan data WhatsApp...';
-    currentQr = null;
-    currentPairingCode = null;
-    console.log('[WhatsApp] Autentikasi berhasil!');
-});
-
-// Event jika autentikasi gagal
-client.on('auth_failure', (msg) => {
-    isClientReady = false;
-    currentQr = null;
-    currentPairingCode = null;
-    userInfo = null;
-    clientStatus = 'Autentikasi Gagal. Silakan coba lagi.';
-    console.error('[WhatsApp] Autentikasi gagal:', msg);
-});
-
-// Event saat WhatsApp siap digunakan untuk kirim pesan
-client.on('ready', () => {
-    isClientReady = true;
-    currentQr = null;
-    currentPairingCode = null;
-    clientStatus = 'WhatsApp Terhubung & Siap';
-    
-    if (client.info) {
-        userInfo = {
-            name: client.info.pushname || 'Akun WhatsApp',
-            number: client.info.wid ? client.info.wid.user : ''
-        };
-        console.log(`[WhatsApp] Siap! Terhubung sebagai: ${userInfo.name} (+${userInfo.number})`);
-    } else {
-        userInfo = { name: 'WhatsApp Web', number: '' };
-        console.log('[WhatsApp] Siap! Silakan buka http://localhost:3000');
-    }
-});
-
-// Event saat koneksi terputus
-client.on('disconnected', (reason) => {
-    isClientReady = false;
-    currentQr = null;
-    currentPairingCode = null;
-    userInfo = null;
-    clientStatus = 'Koneksi Terputus (' + reason + ')';
-    console.log('[WhatsApp] Terputus:', reason);
-});
+let client = null;
 
 // Set untuk mencegah duplikasi balasan jika event terpanggil ganda
 const processedMessages = new Set();
@@ -518,7 +461,7 @@ async function handleIncomingMessage(msg, eventSource) {
                 await msg.reply(aiReply);
             } catch (replyErr) {
                 console.warn(`[msg.reply failed, trying sendMessage]:`, replyErr.message);
-                await client.sendMessage(from, aiReply);
+                if (client) await client.sendMessage(from, aiReply);
             }
             
             console.log(`[AI Auto-Reply SUKSES] Berhasil dikirim ke ${from}!`);
@@ -529,22 +472,115 @@ async function handleIncomingMessage(msg, eventSource) {
     console.log(`--------------------------------------------------\n`);
 }
 
-// Event saat ada pesan WhatsApp masuk dari calon tamu / pelanggan
-client.on('message', async (msg) => {
-    await handleIncomingMessage(msg, 'message');
-});
+async function startWhatsAppClient() {
+    let authStrategy;
+    
+    if (process.env.MONGODB_URI) {
+        console.log('[Server] MONGODB_URI ditemukan. Menghubungkan ke MongoDB untuk sesi WhatsApp...');
+        try {
+            await mongoose.connect(process.env.MONGODB_URI);
+            console.log('[Server] MongoDB terhubung. Sesi akan disimpan permanen di database.');
+            const store = new MongoStore({ mongoose: mongoose });
+            authStrategy = new RemoteAuth({
+                store: store,
+                backupSyncIntervalMs: 300000 // Sinkronisasi setiap 5 menit
+            });
+        } catch (err) {
+            console.error('[Server] Gagal terhubung ke MongoDB:', err.message);
+            console.log('[Server] Fallback ke LocalAuth (Sesi File Lokal)...');
+            authStrategy = new LocalAuth({ dataPath: sessionPath });
+        }
+    } else {
+        console.log('[Server] MONGODB_URI tidak diatur. Menggunakan LocalAuth (Sesi File Lokal)...');
+        authStrategy = new LocalAuth({ dataPath: sessionPath });
+    }
 
-// Event cadangan message_create untuk memastikan pesan selalu tertangkap
-client.on('message_create', async (msg) => {
-    if (msg.fromMe) return; // Hanya tangkap pesan dari orang lain
-    await handleIncomingMessage(msg, 'message_create');
-});
+    client = new Client({
+        authStrategy: authStrategy,
+        puppeteer: puppeteerConfig
+    });
 
-// Jalankan client WhatsApp
-client.initialize().catch((err) => {
-    console.error('[WhatsApp Init Error]:', err.message);
-    clientStatus = 'Gagal inisialisasi: ' + err.message;
-});
+    // Event saat QR Code / Pairing Code siap
+    client.on('qr', (qr) => {
+        isClientReady = false;
+        currentQr = qr;
+        clientStatus = 'Siap ditautkan via Nomor HP atau QR Code';
+        console.log('\n=============================================');
+        console.log('[WHATSAPP SIAP] Buka http://localhost:3000 untuk menautkan via Nomor Telepon atau QR Code.');
+        console.log('=============================================\n');
+    });
+
+    // Event saat Remote Auth berhasil disimpan
+    client.on('remote_session_saved', () => {
+        console.log('[WhatsApp] Sesi berhasil disimpan ke Database (MongoDB)!');
+    });
+
+    // Event saat proses autentikasi berhasil
+    client.on('authenticated', () => {
+        clientStatus = 'Autentikasi Berhasil! Menyiapkan data WhatsApp...';
+        currentQr = null;
+        currentPairingCode = null;
+        console.log('[WhatsApp] Autentikasi berhasil!');
+    });
+
+    // Event jika autentikasi gagal
+    client.on('auth_failure', (msg) => {
+        isClientReady = false;
+        currentQr = null;
+        currentPairingCode = null;
+        userInfo = null;
+        clientStatus = 'Autentikasi Gagal. Silakan coba lagi.';
+        console.error('[WhatsApp] Autentikasi gagal:', msg);
+    });
+
+    // Event saat WhatsApp siap digunakan untuk kirim pesan
+    client.on('ready', () => {
+        isClientReady = true;
+        currentQr = null;
+        currentPairingCode = null;
+        clientStatus = 'WhatsApp Terhubung & Siap';
+        
+        if (client.info) {
+            userInfo = {
+                name: client.info.pushname || 'Akun WhatsApp',
+                number: client.info.wid ? client.info.wid.user : ''
+            };
+            console.log(`[WhatsApp] Siap! Terhubung sebagai: ${userInfo.name} (+${userInfo.number})`);
+        } else {
+            userInfo = { name: 'WhatsApp Web', number: '' };
+            console.log('[WhatsApp] Siap! Silakan buka http://localhost:3000');
+        }
+    });
+
+    // Event saat koneksi terputus
+    client.on('disconnected', (reason) => {
+        isClientReady = false;
+        currentQr = null;
+        currentPairingCode = null;
+        userInfo = null;
+        clientStatus = 'Koneksi Terputus (' + reason + ')';
+        console.log('[WhatsApp] Terputus:', reason);
+    });
+
+    // Event saat ada pesan WhatsApp masuk dari calon tamu / pelanggan
+    client.on('message', async (msg) => {
+        await handleIncomingMessage(msg, 'message');
+    });
+
+    // Event cadangan message_create untuk memastikan pesan selalu tertangkap
+    client.on('message_create', async (msg) => {
+        if (msg.fromMe) return; // Hanya tangkap pesan dari orang lain
+        await handleIncomingMessage(msg, 'message_create');
+    });
+
+    // Jalankan client WhatsApp
+    client.initialize().catch((err) => {
+        console.error('[WhatsApp Init Error]:', err.message);
+        clientStatus = 'Gagal inisialisasi: ' + err.message;
+    });
+}
+
+startWhatsAppClient();
 
 // ==========================================
 // REST API ENDPOINTS
