@@ -308,7 +308,7 @@ ${knowledgeData.knowledgeText || ''}
     // Coba setiap API Key yang dimasukkan
     for (let kIdx = 0; kIdx < keyList.length; kIdx++) {
         const activeKey = keyList[kIdx];
-        const isGroq = activeKey.startsWith('gsk_') || aiConfig.provider === 'groq' || (!activeKey.startsWith('AIza') && activeKey.length > 20);
+        const isGroq = activeKey.startsWith('gsk_');
 
         try {
             if (isGroq) {
@@ -440,33 +440,58 @@ async function handleIncomingMessage(msg, eventSource) {
         processedMessages.delete(oldest);
     }
 
-    const currentState = userState.get(from) || 'MENU';
+    const currentState = userState.get(from) || 'MENU_UTAMA';
     const textLower = body.toLowerCase();
 
-    if (currentState === 'MENU') {
+    // Selalu izinkan untuk kembali ke menu utama dari mana saja
+    if (textLower === '0' || textLower === 'menu' || textLower === 'kembali') {
+        userState.set(from, 'MENU_UTAMA');
+        const menuMsg = "Selamat datang di *Rumah Etnik Papua*! 🛖🌿\nSilakan balas dengan mengetik *angka* pilihan menu di bawah ini:\n\n1️⃣ Harga Tiket Masuk & Layanan\n2️⃣ Daftar Paket (Wisata & Edukasi)\n3️⃣ Informasi Kamar (Rumsram Homestay)\n4️⃣ Cinderamata & Kesenian\n5️⃣ FAQ (Pertanyaan Umum)\n6️⃣ Tanya Asisten AI (Chatbot Pintar)";
+        if (client) await client.sendMessage(from, menuMsg);
+        return;
+    }
+
+    if (currentState === 'MENU_UTAMA') {
         if (textLower === '1') {
-            const reply = "✨ *Info Layanan & Harga Rumah Etnik Papua* ✨\n\nKami menyediakan homestay autentik, tur budaya, dan pengalaman wisata tak terlupakan. Untuk daftar harga lengkap dan ketersediaan, silakan hubungi admin kami di " + (knowledgeData.contactPhone || "0811-4600-1602") + ".\n\n_(Ketik *menu* untuk kembali)_";
+            const reply = "✨ *Harga Tiket Masuk & Layanan* ✨\n\n*Domestik*\n• Dewasa: Rp 25.000\n• Anak-anak (<8 Thn): Rp 10.000\n\n*Internasional*\n• Dewasa: Rp 50.000\n• Anak-anak (<8 Thn): Rp 25.000\n\n*Sewa Kostum (Di Lokasi)*\n• Domestik: Dewasa Rp 75.000 | Anak Rp 50.000\n• Internasional: Dewasa Rp 100.000 | Anak Rp 60.000\n\n*Layanan Lainnya*\n• Fotografi: 1-5 org (Rp 200rb), 5-10 org (Rp 250rb), 10-15 org (Rp 300rb) maks 50 file.\n• Rambut Sambung/Kepang: Rp 25.000/orang\n\n_(Ketik *0* untuk kembali ke Menu Utama)_";
             if (client) await client.sendMessage(from, reply);
         } else if (textLower === '2') {
-            const reply = "📍 *Lokasi & Kontak* 📍\n\n" + (knowledgeData.location || "Sorong, Papua Barat Daya (Gerbang Wisata Raja Ampat)") + "\n📞 Telepon/WA: " + (knowledgeData.contactPhone || "0811-4600-1602") + "\n\n_(Ketik *menu* untuk kembali)_";
+            userState.set(from, 'MENU_PAKET');
+            const reply = "🎒 *Daftar Paket Rumah Etnik Papua* 🎒\n\nSilakan balas dengan mengetik *angka* sub-menu paket berikut:\n\n1️⃣ Paket Tour Group\n2️⃣ Paket Pengalaman Khusus (Saswar & Sopendo)\n3️⃣ Paket Wisata Edukasi (Sekolah/Kampus)\n\n_(Ketik *0* untuk kembali ke Menu Utama)_";
             if (client) await client.sendMessage(from, reply);
         } else if (textLower === '3') {
+            const reply = "🛏️ *Informasi Kamar (Rumsram Homestay)* 🛏️\n\nFasilitas Gratis: Makan 2x, Snack 2x, Teras, Free Kostum, Kunjungan Rumah/Museum Tradisional.\n*(Tarif per orang, Kapasitas maks 2 orang/kamar)*\n\n• *Double Room AC*: Rp 1.100.000 (Kamar Mandi Dalam, ±15m²)\n• *Standar Room AC*: Rp 950.000 (Kamar Mandi Luas, ±9m²)\n• *Standar Non AC*: Rp 900.000 (Kamar Mandi Luas, ±9m²)\n• *Single*: Rp 550.000 (Non AC, Kamar Mandi Luas, ±9m²)\n\n_(Ketik *0* untuk kembali ke Menu Utama)_";
+            if (client) await client.sendMessage(from, reply);
+        } else if (textLower === '4') {
+            const reply = "🎁 *Cinderamata & Kesenian* 🎁\n\n• *Kalung Kerang*: Diberikan gratis (bisa dibawa pulang) khusus pada Paket Sopendo.\n• *Noken & Mahkota*: Anda akan diajarkan cara membuatnya langsung pada Paket Sopendo & Paket Wisata Edukasi.\n• *Sewa Patung*: (Sebagai properti acara) Ukuran Sedang Rp 300.000/hari | Besar Rp 500.000/hari.\n\n_(Ketik *0* untuk kembali ke Menu Utama)_";
+            if (client) await client.sendMessage(from, reply);
+        } else if (textLower === '5') {
+            const reply = "❓ *FAQ (Pertanyaan Umum)* ❓\n\n📍 *Lokasi:* Jl. Baru Aimas Klamono, Km 21 Kab. Sorong, Papua Barat Daya.\n🕒 *Jam Buka:* Senin-Sabtu 08.00-18.00 WIT | Minggu 12.00-18.00 WIT.\n👗 *Sewa Kostum Keluar:* Dlm kota Rp 170rb, Luar kota Rp 350rb (Syarat KTP & Jaminan 50%).\n🎪 *Sewa Tempat Acara:* Mulai Rp 1.000.000 s/d Rp 2.500.000 (termasuk sound, bangku, free tiket & karaoke).\n🍲 *Catering:* Tersedia Paket Snack (Rp 15rb) hingga Prasmanan (Rp 40rb).\n\n_(Ketik *0* untuk kembali ke Menu Utama)_";
+            if (client) await client.sendMessage(from, reply);
+        } else if (textLower === '6') {
             userState.set(from, 'AI_MODE');
-            const reply = "🤖 *Asisten AI Rumah Etnik Papua*\n\nHalo Kaka! Saya adalah asisten virtual cerdas di sini. Silakan tanyakan apa saja seputar layanan, budaya, atau wisata kami. Saya siap membantu!\n\n_(Ketik *menu* kapan saja untuk mengakhiri percakapan AI)_";
+            const reply = "🤖 *Asisten AI Rumah Etnik Papua*\n\nHalo Kaka! Saya adalah asisten virtual cerdas di sini. Silakan tanyakan hal lain seputar Rumah Etnik Papua yang mungkin belum ada di menu, atau minta rekomendasi!\n\n_(Ketik *0* kapan saja untuk mengakhiri sesi AI dan kembali ke menu utama)_";
             if (client) await client.sendMessage(from, reply);
         } else {
-            // Tampilkan Menu
-            const menuMsg = "Selamat datang di *Rumah Etnik Papua*! 🛖🌿\nSilakan balas dengan mengetik angka pilihan menu di bawah ini:\n\n1️⃣ Info Layanan & Harga\n2️⃣ Lokasi & Kontak\n3️⃣ Tanya Asisten AI (Chatbot pintar)";
+            // Tampilkan Menu Utama Default
+            const menuMsg = "Selamat datang di *Rumah Etnik Papua*! 🛖🌿\nSilakan balas dengan mengetik *angka* pilihan menu di bawah ini:\n\n1️⃣ Harga Tiket Masuk & Layanan\n2️⃣ Daftar Paket (Wisata & Edukasi)\n3️⃣ Informasi Kamar (Rumsram Homestay)\n4️⃣ Cinderamata & Kesenian\n5️⃣ FAQ (Pertanyaan Umum)\n6️⃣ Tanya Asisten AI (Chatbot Pintar)";
             if (client) await client.sendMessage(from, menuMsg);
+        }
+    } else if (currentState === 'MENU_PAKET') {
+        if (textLower === '1') {
+            const reply = "👥 *Paket Tour Group* 👥\n\nTermasuk penyambutan, penggunaan kostum, tour museum/rumah, makanan ringan, tarian, & dokumentasi.\n\n• 1 - 5 Orang: Rp 3.000.000\n• 6 - 10 Orang: Rp 5.000.000\n• 11 - 15 Orang: Rp 6.700.000\n• 16 - 20 Orang: Rp 8.000.000\n\n_(Ketik *0* untuk kembali ke Menu Utama)_";
+            if (client) await client.sendMessage(from, reply);
+        } else if (textLower === '2') {
+            const reply = "🌟 *Paket Pengalaman Khusus* 🌟\n\n• *Paket Saswar (Rp 799.000/orang)*\nTermasuk: Penyambutan, kostum lengkap dgn ukiran, tour, tarian, teh/kopi, dan aneka gorengan (kasbi, pisang).\n\n• *Paket Sopendo (Rp 949.000/orang) - PREMIUM*\nTermasuk: Penyambutan kalung kerang, praktek pembuatan Papeda/Sinole, praktek Noken & Mahkota, kuliner khas, dan jasa fotografer.\n\n_(Ketik *0* untuk kembali ke Menu Utama)_";
+            if (client) await client.sendMessage(from, reply);
+        } else if (textLower === '3') {
+            const reply = "🎓 *Paket Wisata Edukasi* 🎓\n\n(Minimal 10 orang. Termasuk: Kostum, menari, pengenalan museum/rumah, makanan tradisional, & kesenian)\n\n• TK: Rp 50.000/anak\n• SD: Rp 60.000/orang\n• SMP/SMA: Rp 70.000/orang\n• Mahasiswa: Rp 85.000/orang\n\n_(Ketik *0* untuk kembali ke Menu Utama)_";
+            if (client) await client.sendMessage(from, reply);
+        } else {
+            const reply = "Mohon maaf, pilihan tidak ada.\n\nSilakan pilih angka:\n1️⃣ Paket Tour Group\n2️⃣ Paket Pengalaman Khusus\n3️⃣ Paket Wisata Edukasi\n\n_(Ketik *0* untuk kembali ke Menu Utama)_";
+            if (client) await client.sendMessage(from, reply);
         }
     } else if (currentState === 'AI_MODE') {
-        if (textLower === 'menu' || textLower === 'kembali') {
-            userState.set(from, 'MENU');
-            const menuMsg = "Sesi Asisten AI telah diakhiri. ✅\n\nSilakan balas dengan mengetik angka pilihan menu di bawah ini:\n\n1️⃣ Info Layanan & Harga\n2️⃣ Lokasi & Kontak\n3️⃣ Tanya Asisten AI";
-            if (client) await client.sendMessage(from, menuMsg);
-            return;
-        }
-
         // Cek API Key sebelum memanggil AI
         const apiKey = (aiConfig.apiKey || process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || '').trim();
         if (!apiKey) {
