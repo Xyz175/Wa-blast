@@ -94,6 +94,26 @@ app.use(express.static('public')); // Folder untuk file statis HTML/CSS/JS
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => console.log(`[Server] Berjalan di port ${PORT}. Buka browser di http://localhost:${PORT}`));
 
+// Sanitasi nama model AI (otomatis migrasi model yang sudah decommissioned/usang dari Groq/Gemini ke model aktif terbaru)
+function sanitizeAiModel(model) {
+    if (!model) return '';
+    const clean = String(model).trim();
+    const groqDeprecatedMap = {
+        'llama3-70b-8192': 'llama-3.3-70b-versatile',
+        'llama3-8b-8192': 'llama-3.1-8b-instant',
+        'llama-3.1-70b-versatile': 'llama-3.3-70b-versatile',
+        'mixtral-8x7b-32768': 'llama-3.3-70b-versatile',
+        'gemma2-9b-it': 'llama-3.3-70b-versatile',
+        'gemma-7b-it': 'llama-3.1-8b-instant',
+        'llama-guard-2-8b': 'meta-llama/llama-guard-3-8b'
+    };
+    const geminiDeprecatedMap = {
+        'gemini-1.0-pro': 'gemini-1.5-flash',
+        'gemini-pro': 'gemini-1.5-flash'
+    };
+    return groqDeprecatedMap[clean] || geminiDeprecatedMap[clean] || clean;
+}
+
 // Path file database pengetahuan AI
 const KNOWLEDGE_FILE = path.join(__dirname, 'knowledge_base.json');
 let knowledgeData = {
@@ -109,7 +129,7 @@ let aiConfig = {
     apiKey: process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || '',
     provider: process.env.AI_PROVIDER || 'auto',
     autoReply: process.env.AI_AUTO_REPLY === 'true',
-    modelName: ''
+    modelName: sanitizeAiModel(process.env.AI_MODEL_NAME || '')
 };
 
 if (fs.existsSync(KNOWLEDGE_FILE)) {
@@ -124,7 +144,7 @@ if (fs.existsSync(KNOWLEDGE_FILE)) {
                 autoReply: typeof rawKnowledge.aiConfig.autoReply === 'boolean' 
                     ? rawKnowledge.aiConfig.autoReply 
                     : (process.env.AI_AUTO_REPLY === 'true'),
-                modelName: rawKnowledge.aiConfig.modelName || ''
+                modelName: sanitizeAiModel(rawKnowledge.aiConfig.modelName || process.env.AI_MODEL_NAME || '')
             };
         }
     } catch (e) {
@@ -143,6 +163,9 @@ async function loadKnowledgeFromFirestore() {
             knowledgeData = { ...knowledgeData, ...data };
             if (data.aiConfig) {
                 aiConfig = { ...aiConfig, ...data.aiConfig };
+                if (aiConfig.modelName) {
+                    aiConfig.modelName = sanitizeAiModel(aiConfig.modelName);
+                }
             }
             console.log('[Firestore] Data knowledge_base berhasil dimuat.');
         } else {
@@ -175,17 +198,17 @@ let userInfo = null;
 
 // Fungsi Khusus: Memanggil Groq Cloud AI (Llama 3.3 70B & Llama 3.1 8B) - Super Cepat & Kuota Gratis 14.400 req/hari
 async function callGroqAi(apiKey, systemInstruction, userMessage) {
+    const selectedModel = sanitizeAiModel(aiConfig.modelName) || 'llama-3.3-70b-versatile';
     const candidateModels = [
-        aiConfig.modelName || 'llama-3.3-70b-versatile',
+        selectedModel,
         'llama-3.3-70b-versatile',
         'llama-3.1-8b-instant',
-        'llama3-70b-8192',
-        'mixtral-8x7b-32768',
-        'gemma2-9b-it'
+        'llama-3.2-3b-preview',
+        'llama-3.2-1b-preview'
     ];
 
     let lastError = null;
-    for (const model of [...new Set(candidateModels)]) {
+    for (const model of [...new Set(candidateModels.map(m => sanitizeAiModel(m)).filter(Boolean))]) {
         try {
             console.log(`[Groq AI] Mencoba model: ${model}...`);
             const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -227,15 +250,16 @@ async function callGroqAi(apiKey, systemInstruction, userMessage) {
 // Fungsi Khusus: Memanggil Google Gemini AI
 async function callGeminiAi(apiKey, systemInstruction, userMessage) {
     const genAI = new GoogleGenerativeAI(apiKey);
+    const selectedModel = sanitizeAiModel(aiConfig.modelName) || 'gemini-1.5-flash';
     const candidateModels = [
-        aiConfig.modelName || 'gemini-1.5-flash',
+        selectedModel,
         'gemini-1.5-flash',
         'gemini-2.0-flash',
         'gemini-1.5-pro'
     ];
 
     let lastError = null;
-    for (const modelName of [...new Set(candidateModels)]) {
+    for (const modelName of [...new Set(candidateModels.map(m => sanitizeAiModel(m)).filter(Boolean))]) {
         try {
             console.log(`[Gemini AI] Mencoba model: ${modelName}...`);
             const model = genAI.getGenerativeModel({
@@ -550,7 +574,7 @@ app.post('/api/ai-config', requireAuth, async (req, res) => {
         aiConfig.provider = provider;
     }
     if (modelName !== undefined) {
-        aiConfig.modelName = modelName;
+        aiConfig.modelName = sanitizeAiModel(modelName);
     }
     if (knowledge && typeof knowledge === 'object') {
         knowledgeData = { ...knowledgeData, ...knowledge };
