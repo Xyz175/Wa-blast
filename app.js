@@ -128,10 +128,10 @@ let knowledgeData = {
 };
 
 let aiConfig = {
-    apiKey: process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || '',
-    provider: process.env.AI_PROVIDER || 'auto',
+    apiKey: process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || '',
+    provider: process.env.AI_PROVIDER || 'gemini',
     autoReply: process.env.AI_AUTO_REPLY === 'true',
-    modelName: sanitizeAiModel(process.env.AI_MODEL_NAME || '')
+    modelName: sanitizeAiModel(process.env.AI_MODEL_NAME || 'gemini-1.5-flash')
 };
 
 if (fs.existsSync(KNOWLEDGE_FILE)) {
@@ -141,12 +141,12 @@ if (fs.existsSync(KNOWLEDGE_FILE)) {
         // Ambil aiConfig yang tersimpan jika ada
         if (rawKnowledge.aiConfig) {
             aiConfig = {
-                apiKey: rawKnowledge.aiConfig.apiKey || process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || '',
-                provider: rawKnowledge.aiConfig.provider || process.env.AI_PROVIDER || 'auto',
+                apiKey: rawKnowledge.aiConfig.apiKey || process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || '',
+                provider: rawKnowledge.aiConfig.provider || process.env.AI_PROVIDER || 'gemini',
                 autoReply: typeof rawKnowledge.aiConfig.autoReply === 'boolean' 
                     ? rawKnowledge.aiConfig.autoReply 
                     : (process.env.AI_AUTO_REPLY === 'true'),
-                modelName: sanitizeAiModel(rawKnowledge.aiConfig.modelName || process.env.AI_MODEL_NAME || '')
+                modelName: sanitizeAiModel(rawKnowledge.aiConfig.modelName || process.env.AI_MODEL_NAME || 'gemini-1.5-flash')
             };
         }
     } catch (e) {
@@ -387,6 +387,7 @@ let client = null;
 
 // Set untuk mencegah duplikasi balasan jika event terpanggil ganda
 const processedMessages = new Set();
+const userState = new Map();
 
 // Handler terpusat untuk memproses pesan masuk WhatsApp
 async function handleIncomingMessage(msg, eventSource) {
@@ -427,14 +428,6 @@ async function handleIncomingMessage(msg, eventSource) {
         return;
     }
 
-    // 5. Cek apakah API Key sudah terpasang
-    const apiKey = (aiConfig.apiKey || process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || '').trim();
-    if (!apiKey) {
-        console.error(`[AI Auto-Reply GAGAL] API Key belum diisi! Silakan masukkan Groq API Key di Web Dashboard.`);
-        console.log(`--------------------------------------------------\n`);
-        return;
-    }
-
     // Cegah proses ganda untuk message ID yang sama
     const msgId = msg.id?._serialized || msg.id?.id || `${from}_${Date.now()}`;
     if (processedMessages.has(msgId)) {
@@ -447,27 +440,68 @@ async function handleIncomingMessage(msg, eventSource) {
         processedMessages.delete(oldest);
     }
 
-    console.log(`[AI Thinking] Memproses balasan dengan Groq AI / Gemini untuk: "${body}"...`);
+    const currentState = userState.get(from) || 'MENU';
+    const textLower = body.toLowerCase();
 
-    try {
-        const aiReply = await generateAiResponse(body);
-        if (aiReply) {
-            console.log(`[AI Reply Generated]: "${aiReply.substring(0, 100)}..."`);
-            
-            // Jeda 1.5 detik agar respon natural
-            await new Promise(r => setTimeout(r, 1500));
-            
-            try {
-                await msg.reply(aiReply);
-            } catch (replyErr) {
-                console.warn(`[msg.reply failed, trying sendMessage]:`, replyErr.message);
-                if (client) await client.sendMessage(from, aiReply);
-            }
-            
-            console.log(`[AI Auto-Reply SUKSES] Berhasil dikirim ke ${from}!`);
+    if (currentState === 'MENU') {
+        if (textLower === '1') {
+            const reply = "✨ *Info Layanan & Harga Rumah Etnik Papua* ✨\n\nKami menyediakan homestay autentik, tur budaya, dan pengalaman wisata tak terlupakan. Untuk daftar harga lengkap dan ketersediaan, silakan hubungi admin kami di " + (knowledgeData.contactPhone || "0811-4600-1602") + ".\n\n_(Ketik *menu* untuk kembali)_";
+            if (client) await client.sendMessage(from, reply);
+        } else if (textLower === '2') {
+            const reply = "📍 *Lokasi & Kontak* 📍\n\n" + (knowledgeData.location || "Sorong, Papua Barat Daya (Gerbang Wisata Raja Ampat)") + "\n📞 Telepon/WA: " + (knowledgeData.contactPhone || "0811-4600-1602") + "\n\n_(Ketik *menu* untuk kembali)_";
+            if (client) await client.sendMessage(from, reply);
+        } else if (textLower === '3') {
+            userState.set(from, 'AI_MODE');
+            const reply = "🤖 *Asisten AI Rumah Etnik Papua*\n\nHalo Kaka! Saya adalah asisten virtual cerdas di sini. Silakan tanyakan apa saja seputar layanan, budaya, atau wisata kami. Saya siap membantu!\n\n_(Ketik *menu* kapan saja untuk mengakhiri percakapan AI)_";
+            if (client) await client.sendMessage(from, reply);
+        } else {
+            // Tampilkan Menu
+            const menuMsg = "Selamat datang di *Rumah Etnik Papua*! 🛖🌿\nSilakan balas dengan mengetik angka pilihan menu di bawah ini:\n\n1️⃣ Info Layanan & Harga\n2️⃣ Lokasi & Kontak\n3️⃣ Tanya Asisten AI (Chatbot pintar)";
+            if (client) await client.sendMessage(from, menuMsg);
         }
-    } catch (err) {
-        console.error(`[AI Auto-Reply Error]:`, err.message);
+    } else if (currentState === 'AI_MODE') {
+        if (textLower === 'menu' || textLower === 'kembali') {
+            userState.set(from, 'MENU');
+            const menuMsg = "Sesi Asisten AI telah diakhiri. ✅\n\nSilakan balas dengan mengetik angka pilihan menu di bawah ini:\n\n1️⃣ Info Layanan & Harga\n2️⃣ Lokasi & Kontak\n3️⃣ Tanya Asisten AI";
+            if (client) await client.sendMessage(from, menuMsg);
+            return;
+        }
+
+        // Cek API Key sebelum memanggil AI
+        const apiKey = (aiConfig.apiKey || process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || '').trim();
+        if (!apiKey) {
+            console.error(`[AI Auto-Reply GAGAL] API Key belum diisi! Silakan masukkan API Key di Web Dashboard.`);
+            console.log(`--------------------------------------------------\n`);
+            return;
+        }
+
+        console.log(`[AI Thinking] Memproses balasan dengan Gemini AI untuk: "${body}"...`);
+
+        try {
+            const aiReply = await generateAiResponse(body);
+            if (aiReply) {
+                console.log(`[AI Reply Generated]: "${aiReply.substring(0, 100)}..."`);
+                await new Promise(r => setTimeout(r, 1500));
+                
+                try {
+                    await msg.reply(aiReply);
+                } catch (replyErr) {
+                    console.warn(`[msg.reply failed, trying sendMessage]:`, replyErr.message);
+                    if (client) await client.sendMessage(from, aiReply);
+                }
+                
+                console.log(`[AI Auto-Reply SUKSES] Berhasil dikirim ke ${from}!`);
+            }
+        } catch (err) {
+            console.error(`[AI Auto-Reply Error]:`, err.message);
+            const errMsg = err.message || '';
+            // Tangkap error limit / 429
+            if (errMsg.includes('429') || errMsg.includes('Quota exceeded') || errMsg.includes('rate limit') || errMsg.includes('rate_limit')) {
+                const waitMsg = "⏳ *Mohon Maaf Kaka*\n\nAsisten AI kami sedang melayani antrean pertanyaan yang sangat padat saat ini. Mohon tunggu beberapa menit dan kirimkan kembali pertanyaan Kaka ya 🙏. Terima kasih atas pengertiannya!";
+                if (client) await client.sendMessage(from, waitMsg);
+                console.log(`[AI Rate Limit] Mengirimkan pesan tunggu ke pelanggan.`);
+            }
+        }
     }
     console.log(`--------------------------------------------------\n`);
 }
