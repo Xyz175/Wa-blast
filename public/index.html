@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp Blast Studio - Rumah Etnik Papua</title>
+    <title>ZeeyBOT - Omnichannel AI Workspace</title>
     
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -605,11 +605,135 @@
             0%, 80%, 100% { transform: scale(0); }
             40% { transform: scale(1); }
         }
+
+        /* Dashboard visual language */
+        :root {
+            --dashboard-bg: #090a0d;
+            --dashboard-panel: #111318;
+            --dashboard-panel-soft: #151820;
+            --dashboard-border: rgba(255, 255, 255, 0.1);
+            --dashboard-text: #f7f8fb;
+            --dashboard-muted: #9ca3b5;
+            --dashboard-accent: #8b5cf6;
+        }
+        body {
+            background: radial-gradient(circle at 78% 10%, rgba(21, 46, 55, 0.52), transparent 32%),
+                        radial-gradient(circle at 15% 45%, rgba(48, 28, 88, 0.34), transparent 34%),
+                        var(--dashboard-bg);
+            color: var(--dashboard-text);
+        }
+        .dashboard-sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 1000;
+            width: 260px;
+            padding: 24px;
+            background: rgba(9, 10, 13, 0.94);
+            border-right: 1px solid var(--dashboard-border);
+        }
+        .dashboard-sidebar .brand-mark {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #8b5cf6, #d946ef);
+            color: white;
+            font-weight: 800;
+        }
+        .zeey-logo-image { width: 38px; height: 38px; object-fit: contain; border-radius: 9px; background: #090a0d; }
+        .zeey-login-logo { width: 92px; height: 92px; object-fit: contain; border-radius: 18px; margin: 0 auto 18px; display: block; }
+        .dashboard-sidebar .section-label {
+            color: #7e8492;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            margin: 46px 0 12px;
+        }
+        .dashboard-sidebar .side-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 11px 14px;
+            margin: 4px 0;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: #adb2c0;
+            text-align: left;
+            font-size: 0.88rem;
+        }
+        .dashboard-sidebar .side-link:hover,
+        .dashboard-sidebar .side-link.active {
+            background: #3d286d;
+            color: #c7a7ff;
+        }
+        .dashboard-sidebar .side-link i { font-size: 1rem; }
+        #mainAppContainer > header,
+        #mainAppContainer > main {
+            margin-left: 260px;
+        }
+        .app-header {
+            padding: 18px 0 62px;
+            background: rgba(9, 10, 13, 0.72);
+            border-bottom: 1px solid var(--dashboard-border);
+            box-shadow: none;
+        }
+        .app-card, .stat-card-mini {
+            background: rgba(17, 19, 24, 0.9);
+            border-color: var(--dashboard-border);
+            box-shadow: none;
+            color: var(--dashboard-text);
+            border-radius: 14px;
+        }
+        .app-card-header { background: rgba(255, 255, 255, 0.025); border-color: var(--dashboard-border); }
+        .app-card-title, .app-card h1, .app-card h2, .app-card h3, .app-card h4, .app-card h5, .app-card h6,
+        .stat-card-mini .fs-5, .stat-card-mini .fw-semibold { color: var(--dashboard-text) !important; }
+        .text-dark { color: var(--dashboard-text) !important; }
+        .text-muted { color: var(--dashboard-muted) !important; }
+        .custom-main-tabs { background: rgba(17, 19, 24, 0.9); border-color: var(--dashboard-border); }
+        .custom-main-tabs .nav-link { color: var(--dashboard-muted); }
+        .custom-main-tabs .nav-link.active { background: var(--dashboard-accent); }
+        .form-control, .form-select { background: #0d0f13; color: #f3f4f6; border-color: var(--dashboard-border); }
+        .form-control::placeholder { color: #687080; }
+        .form-control:focus, .form-select:focus { background: #0d0f13; color: white; border-color: var(--dashboard-accent); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2); }
+        .ai-simulator-chat-box { background-color: #0b0d11; border-color: var(--dashboard-border); }
+        .footer-text { color: var(--dashboard-muted); }
+        .legacy-ui, #mainAppContainer > .footer-text { display: none !important; }
+        .zeey-dashboard { min-height: 100vh; margin-left: 260px; padding: 0 38px 48px; }
+        .zeey-topbar { min-height: 150px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--dashboard-border); }
+        .manual-contact-row { display:flex; gap:8px; margin-top:14px; }.manual-contact-row .form-control { flex:1; }.add-column-button { border:1px dashed #8b5cf6!important; color:#d6c6ff!important; background:transparent!important; }
+        .subscription-notice { margin: 18px 0 0; padding: 13px 16px; border: 1px solid rgba(139,92,246,.35); border-radius: 9px; background: rgba(139,92,246,.1); color: #d7c7ff; font-size: .82rem; }.subscription-notice span { color: #6ee7b7; }
+        .eyebrow { color: #8d93a3; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; }
+        .zeey-topbar h1 { color: white; font-size: 2rem; margin: 8px 0 4px; }
+        .zeey-topbar p, .zeey-section-heading p, .muted { color: var(--dashboard-muted); margin: 0; }
+        .system-status { color: #aeb4c1; font-size: 0.8rem; }.system-status i { display:inline-block; width:7px; height:7px; border-radius:50%; background:#10b981; box-shadow:0 0 10px #10b981; margin-right:7px; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; display:grid; place-items:center; background:#6366f1; color:#fff; font-weight:700; }
+        .zeey-actions { display:flex; justify-content:flex-end; padding: 22px 0 28px; }.zeey-button, .zeey-quiet-button { border:0; border-radius:8px; padding:11px 18px; background:var(--dashboard-accent); color:white; font-weight:700; }.zeey-quiet-button { background:transparent; border:1px solid var(--dashboard-border); color:#c5cad5; }
+        .zeey-stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }.zeey-stat { padding:22px; min-height:130px; border:1px solid var(--dashboard-border); border-radius:13px; background:rgba(17,19,24,.86); }.zeey-stat span,.zeey-stat small { display:block; color:#aab0bf; font-size:.78rem; }.zeey-stat strong { display:block; color:white; font-size:2.2rem; margin:10px 0 2px; }
+        .zeey-section-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; margin:42px 0 18px; }.zeey-section-heading h2 { color:white; font-size:1.35rem; margin:0 0 4px; }.zeey-panel { border:1px solid var(--dashboard-border); border-radius:13px; background:rgba(17,19,24,.86); padding:22px; }.activity-line { display:flex; align-items:center; gap:14px; min-height:58px; }.activity-line strong,.activity-line small { display:block; }.activity-line strong { color:#f5f6f8; }.activity-line small { color:var(--dashboard-muted); margin-top:5px; }.activity-dot { width:9px;height:9px;border-radius:50%; }.activity-dot.green { background:#10b981; box-shadow:0 0 12px #10b981; }.activity-time { color:#7d8494; margin-left:auto; font-size:.75rem; }.zeey-two-column { display:grid;grid-template-columns:1fr 1fr;gap:18px; }.zeey-panel h3 { color:white;font-size:1rem;margin:0 0 8px; }.zeey-textarea { width:100%; resize:vertical; padding:12px; border:1px solid var(--dashboard-border); border-radius:8px; background:#0d0f13; color:#f3f4f6; }.zeey-textarea:focus { outline:0;border-color:var(--dashboard-accent); }.variable-row { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 18px; }.variable-row button { border:1px solid rgba(139,92,246,.5);background:rgba(139,92,246,.12);color:#cbb5ff;border-radius:6px;padding:5px 8px;font-size:.75rem; }.import-count { color:#9ca3b5;font-size:.8rem;margin-top:14px; }.zeey-table { width:100%; color:#d9dce3; }.zeey-table th { color:#8f96a6;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;padding:12px;border-bottom:1px solid var(--dashboard-border); }.zeey-table td { padding:15px 12px;border-bottom:1px solid rgba(255,255,255,.06);font-size:.86rem; }.empty-row { text-align:center;color:#858c9b;padding:34px!important; }.zeey-integration-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:18px; }.integration-card { border:1px solid var(--dashboard-border);border-radius:13px;background:rgba(17,19,24,.86);padding:20px; }.integration-card .platform-icon { color:#c5a8ff;font-size:1.5rem; }.integration-card strong,.integration-card small { display:block; }.integration-card strong { color:white;margin-top:15px; }.integration-card small { color:var(--dashboard-muted);margin-top:5px; }.integration-form { margin-top:18px; }.zeey-panel label { display:block;color:#aeb4c1;font-size:.78rem;margin:12px 0 6px; }.zeey-panel label:first-child { margin-top:0; }
+        .inbox-filter-row { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 18px; }
+        .inbox-filter { border:1px solid var(--dashboard-border); background:transparent; color:#aeb4c1; border-radius:8px; padding:9px 12px; font-size:.78rem; }
+        .inbox-filter strong { color:white; margin-left:5px; }
+        .inbox-filter.active { background:#3d286d; color:#e1d4ff; border-color:#7650c1; }
+        @media (max-width: 900px) {
+            .dashboard-sidebar { position: static; width: 100%; padding: 14px 16px; border-right: 0; border-bottom: 1px solid var(--dashboard-border); }
+            .dashboard-sidebar .section-label, .dashboard-sidebar .sidebar-footer { display: none; }
+            .dashboard-sidebar nav { display: flex; gap: 6px; overflow-x: auto; }
+            .dashboard-sidebar .side-link { width: auto; white-space: nowrap; }
+            #mainAppContainer > header, #mainAppContainer > main, .zeey-dashboard { margin-left: 0; }
+            .zeey-dashboard { padding: 0 16px 30px; }.zeey-topbar { min-height:120px; }.zeey-topbar h1 { font-size:1.55rem; }.zeey-stat-grid,.zeey-integration-grid { grid-template-columns:repeat(2,1fr); }.zeey-two-column { grid-template-columns:1fr; }
+        }
+        @media (max-width: 520px) { .zeey-topbar .system-status { display:none; }.zeey-stat-grid,.zeey-integration-grid { grid-template-columns:1fr; } }
+        .zeey-login-screen { flex-wrap:wrap; gap:70px; padding:50px 8%; background:radial-gradient(circle at 20% 15%, rgba(139,92,246,.2), transparent 34%), #090a0d !important; }.zeey-login-screen > .app-card { margin:0; background:#111318; border-color:var(--dashboard-border); }.login-portfolio { max-width:520px; color:white; order:-1; }.login-portfolio h1 { font-size:clamp(2.2rem,5vw,4.5rem); line-height:1.02; margin:14px 0; }.login-portfolio p { color:#adb3c1; font-size:1rem; line-height:1.7; }.portfolio-points { display:flex; flex-wrap:wrap; gap:8px; margin:26px 0; }.portfolio-points span { border:1px solid rgba(139,92,246,.45); border-radius:20px; color:#d2c0ff; padding:7px 11px; font-size:.78rem; }.portfolio-contact { color:#858c9b; font-size:.8rem; }.reset-card { max-width:460px; width:100%; padding:36px; background:linear-gradient(145deg,#151821,#0d0f14); border:1px solid rgba(139,92,246,.45); box-shadow:0 24px 80px rgba(0,0,0,.45); }.reset-card h1 { color:white; font-size:1.8rem; }.reset-card p { color:#aeb4c1; }.reset-card .form-control { min-height:48px; }.reset-strength { height:4px; border-radius:4px; background:#292d38; overflow:hidden; }.reset-strength span { display:block; width:0; height:100%; background:linear-gradient(90deg,#ef4444,#f59e0b,#10b981); transition:width .25s; }
+        @media(max-width:800px){.zeey-login-screen{padding:30px 18px;gap:30px;align-content:center}.login-portfolio{order:0;text-align:center}.login-portfolio h1{font-size:2.3rem}.portfolio-points{justify-content:center}}
     </style>
     <!-- Firebase SDKs -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-      import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, verifyPasswordResetCode, confirmPasswordReset, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
       // Konfigurasi Firebase Zeey BOT
       const firebaseConfig = {
@@ -632,19 +756,24 @@
 
       window.firebaseAuth = auth;
       window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+    window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+    window.sendPasswordResetEmail = sendPasswordResetEmail;
+    window.verifyPasswordResetCode = verifyPasswordResetCode;
+    window.confirmPasswordReset = confirmPasswordReset;
       window.onAuthStateChanged = onAuthStateChanged;
       window.signOut = signOut;
     </script>
 </head>
 <body>
     <!-- Login Screen -->
-    <div id="loginScreen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:var(--body-bg); z-index:9999; display:flex; align-items:center; justify-content:center;">
+    <div id="loginScreen" class="zeey-login-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:var(--body-bg); z-index:9999; display:flex; align-items:center; justify-content:center; overflow:auto;">
         <div class="app-card p-5" style="max-width: 400px; width:100%; text-align:center;">
-            <div class="brand-icon-wrapper mx-auto mb-3" style="background:#25d366; color:white; font-size:32px; width:64px; height:64px;">
+            <img class="zeey-login-logo" src="/zeey-studio-logo.png" alt="Logo Zeey Studio" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="brand-icon-wrapper mx-auto mb-3" style="display:none; background:#25d366; color:white; font-size:32px; width:64px; height:64px;">
                 <i class="bi bi-shield-lock"></i>
             </div>
-            <h3 class="fw-bold mb-1">Login Admin</h3>
-            <p class="text-muted small mb-4">Akses khusus Rumah Etnik Papua</p>
+            <h3 class="fw-bold mb-1">ZeeyBOT</h3>
+            <p class="text-muted small mb-4">Workspace AI untuk WhatsApp dan sosial media bisnis Anda</p>
             
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="mb-3 text-start">
@@ -657,13 +786,105 @@
                 </div>
                 <button type="submit" class="btn btn-success w-100 fw-bold rounded-pill" id="btnLogin">Masuk</button>
             </form>
+            <button type="button" class="btn btn-link text-muted small fw-semibold" onclick="sendZeeyPasswordReset()">Lupa kata sandi?</button>
+            <button type="button" class="btn btn-link text-success fw-bold mt-2" onclick="openOwnerRegistrationChat()">Daftar Akun Baru</button>
             <div id="loginError" class="text-danger small mt-3 d-none"></div>
+        </div>
+        <div class="login-portfolio">
+            <div class="eyebrow">ZEEYBOT OMNICHANNEL WORKSPACE</div>
+            <h1>AI yang menjaga percakapan bisnis tetap hidup.</h1>
+            <p>Balas customer, kelola reservasi, kirim campaign, dan hubungkan kanal sosial dari satu workspace.</p>
+            <div class="portfolio-points"><span>WhatsApp Blast</span><span>AI Auto-Reply</span><span>Inbox Reservasi</span><span>Social Integrations</span></div>
+            <div class="portfolio-contact">Rumah Etnik Papua · Sorong · Siap membantu bisnis lokal tumbuh</div>
+        </div>
+    </div>
+    <div id="resetPasswordScreen" class="zeey-login-screen d-none" style="position:fixed; inset:0; z-index:10000; align-items:center; justify-content:center; overflow:auto;">
+        <div class="reset-card">
+            <img class="zeey-login-logo" src="/zeey-studio-logo.png" alt="Logo Zeey Studio">
+            <div class="eyebrow mb-2">ZEEYBOT ACCOUNT SECURITY</div>
+            <h1>Buat password baru</h1>
+            <p>Amankan akun Anda dengan password baru yang kuat.</p>
+            <form id="resetPasswordForm" onsubmit="submitZeeyPasswordReset(event)">
+                <label class="form-label text-white-50 small">Password baru</label>
+                <input id="newPassword" type="password" class="form-control mb-2" minlength="6" required placeholder="Minimal 6 karakter">
+                <div class="reset-strength mb-3"><span id="resetStrengthBar"></span></div>
+                <label class="form-label text-white-50 small">Ulangi password baru</label>
+                <input id="confirmNewPassword" type="password" class="form-control mb-3" minlength="6" required placeholder="Ketik ulang password">
+                <button id="resetPasswordButton" class="zeey-button w-100" type="submit">Simpan password baru</button>
+                <div id="resetPasswordMessage" class="small mt-3"></div>
+            </form>
+            <button type="button" class="zeey-quiet-button w-100 mt-3" onclick="backToZeeyLogin()">Kembali ke login</button>
         </div>
     </div>
     <div id="mainAppContainer" style="display:none;">
 
+    <aside class="dashboard-sidebar" aria-label="Navigasi utama">
+        <div class="d-flex align-items-center gap-2 text-white fw-bold fs-5">
+            <img class="zeey-logo-image" src="/zeey-studio-logo.png" alt="Logo Zeey Studio" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span class="brand-mark" style="display:none;">Z</span>
+            <span>ZeeyBOT</span>
+        </div>
+        <div class="section-label">WORKSPACE</div>
+        <nav>
+            <button class="side-link active" type="button" onclick="openZeeyView('overview'); setSideLink(this)"><i class="bi bi-grid-1x2-fill"></i> Overview</button>
+            <button class="side-link" type="button" onclick="openZeeyView('inbox'); setSideLink(this)"><i class="bi bi-inbox-fill"></i> Inbox AI</button>
+            <button class="side-link" type="button" onclick="openZeeyView('blast'); setSideLink(this)"><i class="bi bi-send-fill"></i> Kirim Banyak</button>
+            <button class="side-link" type="button" onclick="openZeeyView('integrations'); setSideLink(this)"><i class="bi bi-plug-fill"></i> Integrasi Sosial Media</button>
+        </nav>
+        <div class="section-label">MANAGE</div>
+        <nav>
+            <button class="side-link" type="button" onclick="openZeeyView('ai'); setSideLink(this)"><i class="bi bi-gear-fill"></i> Pengaturan AI</button>
+            <button class="side-link" type="button" onclick="openZeeyView('owner'); setSideLink(this)"><i class="bi bi-person-badge-fill"></i> Owner</button>
+        </nav>
+        <div class="sidebar-footer position-absolute bottom-0 start-0 end-0 p-4 border-top" style="border-color:var(--dashboard-border)!important;">
+            <div class="small text-muted">PAKET AKTIF</div>
+            <div class="text-white fw-bold mb-3">Free</div>
+            <button type="button" class="side-link justify-content-center border" onclick="logoutZeeyApp()"><i class="bi bi-box-arrow-right"></i> Keluar</button>
+        </div>
+    </aside>
+
+    <div class="zeey-dashboard">
+        <header class="zeey-topbar">
+            <div>
+                <div class="eyebrow">WORKSPACE / RUMAH ETNIK PAPUA</div>
+                <h1 id="zeeyPageTitle">Overview</h1>
+                <p id="zeeyPageSubtitle">Pantau proses, pesan, dan kanal bisnis dari satu tempat.</p>
+            </div>
+            <div class="d-flex align-items-center gap-3"><span class="system-status"><i></i> Semua sistem normal</span><span class="avatar">Z</span></div>
+        </header>
+        <div id="zeeySubscriptionNotice" class="subscription-notice d-none"></div>
+
+        <section id="zeeyOverviewView" class="zeey-view">
+            <div class="zeey-stat-grid">
+                <article class="zeey-stat"><span>Total pesan harian</span><strong id="zeeySentToday">0</strong><small>pesan terkirim hari ini</small></article>
+                <article class="zeey-stat"><span>Proses aktif</span><strong id="zeeyActiveProcesses">0</strong><small>berjalan sekarang</small></article>
+                <article class="zeey-stat"><span>Pesan dalam antrian</span><strong id="zeeyQueued">0</strong><small>menunggu dikirim</small></article>
+                <article class="zeey-stat"><span>Kontak Inbox AI</span><strong id="zeeyInboxCount">0</strong><small>customer terdata</small></article>
+            </div>
+            <div class="zeey-section-heading"><div><h2>Aktivitas pesan</h2><p>Ringkasan proses blast dan balasan customer.</p></div><button class="zeey-quiet-button" onclick="loadZeeyDashboard()">Segarkan</button></div>
+            <div class="zeey-panel activity-panel"><div class="activity-line"><span class="activity-dot green"></span><div><strong id="zeeyActivityTitle">Belum ada proses berjalan</strong><small id="zeeyActivityText">Mulai dari Blast WhatsApp untuk mengirim pesan massal.</small></div><span class="activity-time">sekarang</span></div></div>
+        </section>
+
+        <section id="zeeyInboxView" class="zeey-view d-none">
+            <div class="zeey-section-heading"><div><h2>Inbox AI & Reservasi</h2><p>Semua kontak yang meminta reservasi, DP, atau menghubungi admin pribadi.</p></div><button class="zeey-quiet-button" onclick="loadZeeyDashboard()">Segarkan</button></div>
+            <div class="inbox-filter-row"><button class="inbox-filter active" onclick="filterZeeyInbox('Semua', this)">Semua <strong id="inboxAllCount">0</strong></button><button class="inbox-filter" onclick="filterZeeyInbox('Reservasi', this)">Pesanan reservasi <strong id="inboxReservationCount">0</strong></button><button class="inbox-filter" onclick="filterZeeyInbox('DP', this)">DP / pembayaran <strong id="inboxDpCount">0</strong></button><button class="inbox-filter" onclick="filterZeeyInbox('Hubungi Admin', this)">Hubungi langsung admin <strong id="inboxAdminCount">0</strong></button></div>
+            <div class="zeey-panel"><div class="table-responsive"><table class="zeey-table"><thead><tr><th>Kontak</th><th>Pesan terakhir</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="zeeyInboxTable"><tr><td colspan="4" class="empty-row">Belum ada kontak masuk.</td></tr></tbody></table></div></div>
+        </section>
+
+        <section id="zeeyBlastView" class="zeey-view d-none">
+            <div class="zeey-section-heading"><div><h2>WhatsApp Blast</h2><p>Impor Excel/CSV, gunakan variabel, lalu kirim ke banyak nomor secara berurutan.</p></div></div>
+            <div class="zeey-two-column"><div class="zeey-panel"><h3>1. Impor kontak</h3><p class="muted">Kolom 1 wajib nomor WhatsApp dan menjadi patokan pengiriman. Kolom berikutnya boleh berisi data tambahan.</p><button class="zeey-button w-100" onclick="document.getElementById('csvFile').click()"><i class="bi bi-file-earmark-spreadsheet"></i> Pilih Excel / CSV</button><div class="manual-contact-row"><input id="zeeyManualPhone" class="form-control" placeholder="Tambah nomor ke kolom 1"><button class="zeey-quiet-button" onclick="addManualZeeyContact()">Tambah</button></div><div class="import-count" id="zeeyImportCount">Belum ada data.</div></div><div class="zeey-panel"><h3>2. Template pesan per kolom</h3><textarea id="zeeyBlastTemplate" class="zeey-textarea" rows="8" placeholder="Halo, data kolom 2: {{2}}. Informasi kolom 3: {{3}}."></textarea><div class="variable-row" id="zeeyVariableRow"><button onclick="addZeeyVariable('{{1}}')">{{1}} · NO_WA</button><button onclick="addZeeyVariable('{{2}}')">{{2}} · Kolom 2</button><button onclick="addZeeyVariable('{{3}}')">{{3}} · Kolom 3</button><button onclick="addZeeyVariable('{{4}}')">{{4}} · Kolom 4</button><button onclick="addZeeyVariable('{{5}}')">{{5}} · Kolom 5</button><button onclick="addZeeyVariable('{{6}}')">{{6}} · Kolom 6</button><button class="add-column-button" onclick="addZeeyColumns7To10()">+ Tambah kolom 7-10</button></div><p class="muted small">Nomor WhatsApp selalu berasal dari kolom 1 dan tidak boleh tertukar dengan isi pesan.</p><button class="zeey-button w-100" onclick="sendZeeyBlast()"><i class="bi bi-send-fill"></i> Kirim blast</button></div></div>
+        </section>
+
+        <section id="zeeyIntegrationsView" class="zeey-view d-none"><div class="zeey-section-heading"><div><h2>Integrasi Sosial Media</h2><p>Sambungkan beberapa akun WhatsApp, Instagram, TikTok, dan Facebook.</p></div></div><div class="zeey-integration-grid" id="zeeyIntegrationGrid"></div><div class="zeey-panel integration-form"><h3>Tambah kanal</h3><div class="row g-2"><div class="col-md-3"><select id="integrationPlatform" class="form-select" onchange="updateIntegrationMethod()"><option>WhatsApp</option><option>Instagram</option><option>TikTok</option><option>Facebook</option></select></div><div class="col-md-3"><input id="integrationName" class="form-control" placeholder="Nama akun / bisnis"></div><div class="col-md-3"><input id="integrationIdentifier" class="form-control" placeholder="Nomor WhatsApp"></div><div class="col-md-3"><button class="zeey-button w-100" onclick="addZeeyIntegration()">Tambah kanal</button></div></div><div id="whatsappConnectActions" class="mt-3"><button class="zeey-button" onclick="openQrModal()"><i class="bi bi-qr-code"></i> Sambungkan WhatsApp via QR / Nomor Verifikasi</button></div></div></section>
+
+        <section id="zeeyAiView" class="zeey-view d-none"><div class="zeey-section-heading"><div><h2>Pengaturan AI</h2><p>Kelola karakter AI, informasi usaha, menu bot, dan rotasi key cadangan.</p></div></div><div class="zeey-panel"><div class="row g-3"><div class="col-lg-6"><label>Nama usaha</label><input id="zeeyBusinessName" class="form-control"><label>Nomor WhatsApp pengelola</label><input id="zeeyContactPhone" class="form-control"><label>Nomor WhatsApp CS</label><input id="zeeyCsPhone" class="form-control"><label>Instruksi kata sapaan</label><textarea id="zeeySystemInstruction" class="form-control" rows="5"></textarea></div><div class="col-lg-6"><label>Informasi lengkap tempat usaha</label><textarea id="zeeyKnowledgeText" class="form-control" rows="8"></textarea><label>Menu bot dan sub-menu</label><textarea id="zeeyBotMenu" class="form-control" rows="5" placeholder="1. Info Harga&#10;1.1 Harga tiket&#10;1.2 Harga kamar&#10;2. Paket wisata"></textarea><div class="d-flex gap-2 mt-3"><button class="zeey-button" onclick="saveZeeyAiSettings()">Simpan informasi AI</button><button class="zeey-quiet-button" onclick="previewZeeyBotMenu()">Pratinjau menu</button></div></div></div><div class="bot-action-preview mt-4"><a id="zeeyReservationButton" class="zeey-button" target="_blank"><i class="bi bi-calendar-check"></i> Reservasi</a><a id="zeeyCsButton" class="zeey-quiet-button" target="_blank"><i class="bi bi-headset"></i> Bicara dengan CS</a></div></div><div class="zeey-panel mt-3 owner-only"><div class="d-flex justify-content-between align-items-center"><div><h3>API key AI cadangan</h3><p class="muted">Satu key per baris. Sistem berganti key otomatis saat terjadi error atau quota.</p></div><span class="badge bg-success" id="zeeyApiKeyCount">0 key aktif</span></div><textarea id="zeeyApiKeys" class="zeey-textarea" rows="6" placeholder="gsk_...&#10;AIzaSy..."></textarea><button class="zeey-button mt-3" onclick="saveZeeyApiKeys()">Simpan semua key</button></div></section>
+
+        <section id="zeeyOwnerView" class="zeey-view d-none"><div class="zeey-section-heading"><div><h2>Owner & Admin</h2><p>Tambahkan admin yang memakai bot dengan usaha dan nomor berbeda.</p></div></div><div class="zeey-panel"><div class="row g-2"><div class="col-md-3"><input id="ownerAdminName" class="form-control" placeholder="Nama admin"></div><div class="col-md-2"><input id="ownerAdminEmail" class="form-control" placeholder="Email"></div><div class="col-md-2"><input id="ownerAdminBusiness" class="form-control" placeholder="Nama usaha"></div><div class="col-md-2"><select id="ownerAdminDuration" class="form-select"><option value="3">3 hari</option><option value="7">7 hari</option><option value="14">14 hari</option><option value="30">1 bulan / 30 hari</option></select></div><div class="col-md-3"><button class="zeey-button w-100" onclick="addZeeyAdmin()">Tambah akun</button></div></div><div class="table-responsive mt-4"><table class="zeey-table"><thead><tr><th>Admin</th><th>Email</th><th>Usaha</th><th>Paket</th><th>Berakhir</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="zeeyAdminTable"></tbody></table></div></div></section>
+    </div>
+
     <!-- Header Section -->
-    <header class="app-header">
+    <header class="app-header legacy-ui">
         <div class="container-fluid px-lg-5">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <div class="navbar-brand-custom">
@@ -718,7 +939,7 @@
     </header>
 
     <!-- Main Content Container -->
-    <main class="container-fluid px-lg-5">
+    <main class="container-fluid px-lg-5 legacy-ui">
         
         <!-- Main Top Navigation Switcher (Blast vs Bot AI) -->
         <div class="d-flex justify-content-center mb-4 mt-2">
@@ -1096,10 +1317,13 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
 
                             <!-- Input API Key -->
                             <div class="mb-2">
-                                <label class="form-label small fw-bold text-dark">AI API Key (Groq Cloud atau Google Gemini):</label>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label class="form-label small fw-bold text-dark">AI API Key (satu key per baris):</label>
+                                    <span class="badge bg-success bg-opacity-10 text-success" id="apiKeyCountBadge">0 key aktif</span>
+                                </div>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="bi bi-key-fill text-muted"></i></span>
-                                    <input type="password" id="inputGeminiApiKey" class="form-control" placeholder="Masukkan Groq Key (gsk_...) atau Gemini Key (AIzaSy...)">
+                                    <textarea id="inputGeminiApiKey" class="form-control" rows="3" placeholder="gsk_... atau AIzaSy...&#10;Tambahkan key lain di baris berikutnya"></textarea>
                                     <button class="btn btn-outline-secondary" type="button" onclick="toggleApiKeyVisibility()" title="Lihat/Sembunyikan Kunci">
                                         <i class="bi bi-eye" id="iconShowKey"></i>
                                     </button>
@@ -1514,6 +1738,7 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
             // Mulai polling status WhatsApp secara berkala
             checkServerStatus();
             setInterval(checkServerStatus, 2500);
+            initializeZeeyPasswordReset();
         });
 
         // Request Pairing Code dari Backend
@@ -1536,7 +1761,7 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                     body: JSON.stringify({ phoneNumber: rawPhone })
                 });
 
-                const data = await res.json();
+                const data = await res.json().catch(() => ({ message: `Server mengembalikan HTTP ${res.status}.` }));
 
                 if (res.ok && data.success && data.code) {
                     activePairingCode = data.code;
@@ -1554,7 +1779,12 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                     });
                 }
             } catch(e) {
-                Swal.fire('Error', 'Gagal menghubungi server: ' + e.message, 'error');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Koneksi ke WhatsApp gagal',
+                    text: e.name === 'TypeError' ? 'Server ZeeyBOT tidak dapat dihubungi. Pastikan terminal menjalankan npm.cmd start dan alamat halaman sama dengan server.' : e.message,
+                    confirmButtonColor: '#8b5cf6'
+                });
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-key-fill me-1"></i> Dapatkan Kode Verifikasi 8 Digit';
@@ -1674,7 +1904,7 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
 
                     // Tampilkan status sinkronisasi jika sedang loading
                     if (data.status.includes('Autentikasi')) {
-                        document.getElementById('qrCodeContainer').innerHTML = '<div class="text-center mt-4"><div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div><h5 class="mt-3 text-primary">Berhasil Tersambung!</h5><p class="text-muted">Sedang menyinkronkan riwayat pesan WhatsApp Anda...<br>Mohon <b>JANGAN</b> keluarkan perangkat dari HP Anda. Tunggu 1-3 menit.</p></div>';
+                        document.getElementById('qrcodeCanvas').innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div><h5 class="mt-3 text-primary">WhatsApp sedang tersambung</h5><p class="text-muted mb-0">Sedang menyinkronkan sesi. Jangan keluarkan perangkat dari HP.</p></div>';
                         lastQrString = null;
                     }
 
@@ -1708,15 +1938,34 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
         }
 
         // Buka Modal Tautkan WhatsApp
-        function openQrModal() {
+        async function openQrModal() {
             if (isWhatsAppReady) {
                 document.getElementById('modalNotConnectedSection').classList.add('d-none');
                 document.getElementById('modalConnectedSection').classList.remove('d-none');
             } else {
                 document.getElementById('modalNotConnectedSection').classList.remove('d-none');
                 document.getElementById('modalConnectedSection').classList.add('d-none');
+                if (!lastQrString) document.getElementById('qrInstructionText').innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Menunggu QR dari server...';
             }
             qrModalInstance.show();
+            // Ambil QR terbaru saat modal dibuka agar tidak menunggu interval polling.
+            try {
+                const res = await fetch(`${API_BASE}/status`, { cache: 'no-store' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                if (data.qr) {
+                    lastQrString = data.qr;
+                    renderQrCode(data.qr);
+                    document.getElementById('qrInstructionText').innerHTML = '<i class="bi bi-qr-code me-1"></i> QR siap dipindai dari WhatsApp di HP.';
+                } else if (data.pairingCode) {
+                    activePairingCode = data.pairingCode;
+                    renderPairingCodeTiles(data.pairingCode);
+                } else {
+                    document.getElementById('qrInstructionText').innerHTML = `<i class="bi bi-hourglass-split me-1"></i> ${escapeHtml(data.status || 'Menunggu QR dari server...')}`;
+                }
+            } catch (error) {
+                document.getElementById('qrInstructionText').innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i> Server belum terhubung: ${escapeHtml(error.message)}</span>`;
+            }
         }
 
         // Konfirmasi Logout WhatsApp
@@ -1904,7 +2153,14 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
 
         // Proses Data Kontak yang Sudah di-parse
         function processParsedContacts(rows, fileName) {
-            parsedContacts = rows.filter(row => row.NO_WA || row.NAMA || row.PERUSAHAAN);
+            parsedContacts = rows.map(row => {
+                const normalized = { ...row };
+                const firstColumn = Object.keys(normalized)[0];
+                if (!normalized.NO_WA && firstColumn) normalized.NO_WA = normalized[firstColumn];
+                return normalized;
+            }).filter(row => row.NO_WA || row.NAMA || row.PERUSAHAAN);
+            const zeeyImportCount = document.getElementById('zeeyImportCount');
+            if (zeeyImportCount) zeeyImportCount.innerText = `${parsedContacts.length} kontak siap diproses dari ${fileName}.`;
             
             if (parsedContacts.length === 0) {
                 Swal.fire({
@@ -2188,10 +2444,16 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
             const perusahaan = contact.PERUSAHAAN || 'Perusahaan Anda';
             const video = contact.VIDEO || 'https://youtu.be/contoh-wisata-papua';
 
-            return template
+            let formatted = template
                 .replace(/\[NAMA\]/g, nama)
                 .replace(/\[PERUSAHAAN\]/g, perusahaan)
                 .replace(/\[VIDEO\]/g, video);
+            Object.keys(contact).forEach((key, keyIndex) => {
+                const value = contact[key] == null ? '' : String(contact[key]);
+                formatted = formatted.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'gi'), value);
+                formatted = formatted.replace(new RegExp(`\\{\\{${keyIndex + 1}\\}\\}`, 'g'), value);
+            });
+            return formatted;
         }
 
         // Update Live Message Preview di Bubble
@@ -2462,6 +2724,7 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
 
         // 1. Switch Antara Tab WhatsApp Blast dan Bot AI
         function switchMainTab(tab) {
+            openZeeyView(tab === 'ai' ? 'ai' : 'blast');
             const btnBlast = document.getElementById('mainTabBlastBtn');
             const btnAi = document.getElementById('mainTabAiBtn');
             const viewBlast = document.getElementById('viewBlastSection');
@@ -2480,6 +2743,208 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
             }
         }
 
+        function setSideLink(activeLink) {
+            document.querySelectorAll('.dashboard-sidebar .side-link').forEach(link => link.classList.remove('active'));
+            activeLink.classList.add('active');
+        }
+
+        const zeeyViewMeta = {
+            overview: ['Overview', 'Pantau proses, pesan, dan kanal bisnis dari satu tempat.'],
+            inbox: ['Inbox AI', 'Kelola reservasi, DP, dan percakapan pribadi customer.'],
+            blast: ['WhatsApp Blast', 'Kirim pesan massal dengan data Excel yang terstruktur.'],
+            integrations: ['Integrasi Sosial Media', 'Kelola koneksi kanal bisnis Anda.'],
+            ai: ['Pengaturan AI', 'Atur identitas usaha dan karakter AI.'],
+            owner: ['Owner & Admin', 'Kelola akses admin dan konfigurasi bersama.']
+        };
+        let zeeyInboxData = [];
+        let zeeyInboxFilter = 'Semua';
+        window.currentUserEmail = '';
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+        }
+
+        function openZeeyView(viewName) {
+            document.querySelectorAll('.zeey-view').forEach(view => view.classList.add('d-none'));
+            const target = document.getElementById(`zeey${viewName.charAt(0).toUpperCase() + viewName.slice(1)}View`);
+            if (target) target.classList.remove('d-none');
+            const meta = zeeyViewMeta[viewName] || zeeyViewMeta.overview;
+            document.getElementById('zeeyPageTitle').innerText = meta[0];
+            document.getElementById('zeeyPageSubtitle').innerText = meta[1];
+            if (viewName === 'overview' || viewName === 'inbox' || viewName === 'integrations' || viewName === 'owner') loadZeeyDashboard();
+        }
+
+        async function loadZeeyDashboard() {
+            try {
+                const response = await fetch(`${API_BASE}/api/dashboard`);
+                const data = await response.json();
+                const stats = data.stats || {};
+                const subscriptionResponse = await fetch(`${API_BASE}/api/subscription?email=${encodeURIComponent(window.currentUserEmail || '')}`);
+                const subscriptionData = await subscriptionResponse.json();
+                const notice = document.getElementById('zeeySubscriptionNotice');
+                if (subscriptionData.subscription && notice) {
+                    const expiry = new Date(subscriptionData.subscription.expiresAt);
+                    notice.classList.remove('d-none');
+                    notice.innerHTML = `<strong>Paket ${escapeHtml(subscriptionData.subscription.packageName)}</strong> · Masa aktif sampai <strong>${expiry.toLocaleDateString('id-ID')}</strong> · Status: <span>${escapeHtml(subscriptionData.subscription.status)}</span>`;
+                }
+                document.getElementById('zeeySentToday').innerText = stats.sentToday || 0;
+                document.getElementById('zeeyActiveProcesses').innerText = stats.activeProcesses || 0;
+                document.getElementById('zeeyQueued').innerText = stats.queued || 0;
+                zeeyInboxData = data.inbox || [];
+                document.getElementById('zeeyInboxCount').innerText = zeeyInboxData.length;
+                document.getElementById('inboxAllCount').innerText = zeeyInboxData.length;
+                document.getElementById('inboxReservationCount').innerText = zeeyInboxData.filter(contact => contact.status === 'Reservasi').length;
+                document.getElementById('inboxDpCount').innerText = zeeyInboxData.filter(contact => contact.status === 'DP').length;
+                document.getElementById('inboxAdminCount').innerText = zeeyInboxData.filter(contact => contact.status === 'Hubungi Admin').length;
+                renderZeeyInbox();
+                document.getElementById('zeeyIntegrationGrid').innerHTML = (data.integrations || []).map(item => `<article class="integration-card"><div class="platform-icon"><i class="bi bi-${item.platform === 'WhatsApp' ? 'whatsapp' : 'share-fill'}"></i></div><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.platform)} · ${escapeHtml(item.identifier)}</small><small class="text-success">${escapeHtml(item.status)}</small></article>`).join('') || '<article class="integration-card"><div class="platform-icon"><i class="bi bi-broadcast"></i></div><strong>Belum ada kanal</strong><small>Tambahkan WhatsApp, Instagram, TikTok, atau Facebook.</small></article>';
+                document.getElementById('zeeyAdminTable').innerHTML = (data.admins || []).map(admin => { const expiry = new Date(admin.expiresAt); const statusClass = admin.status === 'Aktif' ? 'bg-success' : 'bg-danger'; const emailToken = encodeURIComponent(admin.email); return `<tr><td>${escapeHtml(admin.name)}</td><td>${escapeHtml(admin.email)}</td><td>${escapeHtml(admin.businessName)}</td><td>${escapeHtml(admin.packageName || '-')}</td><td>${Number.isNaN(expiry.getTime()) ? '-' : expiry.toLocaleDateString('id-ID')}</td><td><span class="badge ${statusClass}">${escapeHtml(admin.status)}</span></td><td><button class="zeey-quiet-button" onclick="sendAdminPasswordEmail(decodeURIComponent('${emailToken}'))">Kirim Email Password</button> <button class="zeey-quiet-button" onclick="extendZeeyAdmin('${admin.id}')">Perpanjang</button> <button class="zeey-danger-button" onclick="deleteZeeyAdmin('${admin.id}')">Hapus</button></td></tr>`; }).join('') || '<tr><td colspan="7" class="empty-row">Belum ada admin.</td></tr>';
+            } catch (error) { console.warn('[Dashboard] Gagal memuat data:', error.message); }
+        }
+
+        function renderZeeyInbox() {
+            const inboxTable = document.getElementById('zeeyInboxTable');
+            const contacts = zeeyInboxFilter === 'Semua' ? zeeyInboxData : zeeyInboxData.filter(contact => contact.status === zeeyInboxFilter);
+            inboxTable.innerHTML = contacts.map(contact => `<tr><td><strong>${escapeHtml(contact.phone)}</strong></td><td>${escapeHtml(contact.lastMessage)}</td><td><span class="badge bg-success">${escapeHtml(contact.status)}</span></td><td><a class="zeey-quiet-button" href="https://wa.me/${encodeURIComponent(contact.phone)}" target="_blank">Hubungi admin</a></td></tr>`).join('') || '<tr><td colspan="4" class="empty-row">Belum ada kontak pada kategori ini.</td></tr>';
+        }
+
+        function filterZeeyInbox(filter, button) {
+            zeeyInboxFilter = filter;
+            document.querySelectorAll('.inbox-filter').forEach(item => item.classList.remove('active'));
+            button.classList.add('active');
+            renderZeeyInbox();
+        }
+
+        function addZeeyVariable(variable) {
+            const input = document.getElementById('zeeyBlastTemplate');
+            input.value += `${input.value ? ' ' : ''}${variable}`;
+            input.focus();
+        }
+
+        function addZeeyColumns7To10() {
+            const row = document.getElementById('zeeyVariableRow');
+            const addButton = row.querySelector('.add-column-button');
+            for (let column = 7; column <= 10; column++) {
+                if (row.querySelector(`[data-column="${column}"]`)) continue;
+                const button = document.createElement('button');
+                button.dataset.column = column;
+                button.innerText = `{{${column}}} · Kolom ${column}`;
+                button.onclick = () => addZeeyVariable(`{{${column}}}`);
+                row.insertBefore(button, addButton);
+            }
+            addButton.innerText = 'Kolom 7-10 aktif';
+            addButton.disabled = true;
+        }
+
+        function addManualZeeyContact() {
+            const phoneInput = document.getElementById('zeeyManualPhone');
+            const phone = phoneInput.value.trim();
+            if (!phone) return;
+            parsedContacts.push({ NO_WA: phone, NAMA: '', PERUSAHAAN: '', VIDEO: '' });
+            phoneInput.value = '';
+            updateStatistics();
+            document.getElementById('zeeyImportCount').innerText = `${parsedContacts.length} kontak siap diproses.`;
+        }
+
+        function sendZeeyBlast() {
+            const oldTemplate = document.getElementById('messageTemplate');
+            oldTemplate.value = document.getElementById('zeeyBlastTemplate').value;
+            confirmAndSendBlast();
+        }
+
+        async function addZeeyIntegration() {
+            const platform = document.getElementById('integrationPlatform').value;
+            const name = document.getElementById('integrationName').value.trim();
+            const identifier = document.getElementById('integrationIdentifier').value.trim();
+            if (!name) return Swal.fire('Nama akun wajib diisi', '', 'warning');
+            try {
+                const response = await fetch(`${API_BASE}/api/integrations`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ platform, name, identifier }) });
+                const result = await response.json();
+                if (!result.success) throw new Error(result.message);
+                document.getElementById('integrationName').value = '';
+                document.getElementById('integrationIdentifier').value = '';
+                await loadZeeyDashboard();
+                if (platform === 'WhatsApp') await openQrModal();
+            } catch (error) { Swal.fire('Gagal menambah kanal', error.message, 'error'); }
+        }
+
+        function updateIntegrationMethod() {
+            const platform = document.getElementById('integrationPlatform').value;
+            const identifier = document.getElementById('integrationIdentifier');
+            const whatsappActions = document.getElementById('whatsappConnectActions');
+            const isWhatsApp = platform === 'WhatsApp';
+            identifier.value = '';
+            identifier.placeholder = isWhatsApp ? 'Nomor WhatsApp' : `Username atau URL ${platform}`;
+            whatsappActions.classList.toggle('d-none', !isWhatsApp);
+        }
+
+        async function saveZeeyAiSettings() {
+            const knowledge = { businessName: document.getElementById('zeeyBusinessName').value, contactPhone: document.getElementById('zeeyContactPhone').value, csPhone: document.getElementById('zeeyCsPhone').value, systemInstruction: document.getElementById('zeeySystemInstruction').value, knowledgeText: document.getElementById('zeeyKnowledgeText').value, botMenu: document.getElementById('zeeyBotMenu').value };
+            const response = await fetch(`${API_BASE}/api/ai-config`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ knowledge }) });
+            const result = await response.json();
+            updateZeeyContactButtons(knowledge.csPhone || knowledge.contactPhone);
+            Swal.fire(result.success ? 'Tersimpan' : 'Gagal', result.message, result.success ? 'success' : 'error');
+        }
+
+        function updateZeeyContactButtons(phone) {
+            const cleanPhone = String(phone || '').replace(/\D/g, '');
+            document.getElementById('zeeyReservationButton').href = cleanPhone ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Halo, saya ingin melakukan reservasi.')}` : '#';
+            document.getElementById('zeeyCsButton').href = cleanPhone ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Halo, saya ingin berbicara dengan CS.')}` : '#';
+        }
+
+        function previewZeeyBotMenu() {
+            const menu = document.getElementById('zeeyBotMenu').value.trim() || 'Menu belum diisi.';
+            Swal.fire({ title: 'Pratinjau Menu Bot', text: menu, confirmButtonColor: '#8b5cf6' });
+        }
+
+        async function saveZeeyApiKeys() {
+            const response = await fetch(`${API_BASE}/api/ai-config`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ apiKeys: document.getElementById('zeeyApiKeys').value.split(/[\n,]+/).map(key => key.trim()).filter(Boolean) }) });
+            const result = await response.json();
+            if (result.success) document.getElementById('zeeyApiKeyCount').innerText = `${result.config.apiKeyCount} key aktif`;
+            Swal.fire(result.success ? 'Tersimpan' : 'Gagal', result.message, result.success ? 'success' : 'error');
+        }
+
+        async function addZeeyAdmin() {
+            const response = await fetch(`${API_BASE}/api/owner/admins`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name: document.getElementById('ownerAdminName').value, email: document.getElementById('ownerAdminEmail').value, businessName: document.getElementById('ownerAdminBusiness').value, durationDays: Number(document.getElementById('ownerAdminDuration').value) }) });
+            const result = await response.json();
+            if (!result.success) return Swal.fire('Gagal', result.message, 'error');
+            document.getElementById('ownerAdminName').value = ''; document.getElementById('ownerAdminEmail').value = ''; document.getElementById('ownerAdminBusiness').value = ''; loadZeeyDashboard();
+        }
+
+        async function sendAdminPasswordEmail(email) {
+            try {
+                if (!window.sendPasswordResetEmail || !window.firebaseAuth) throw new Error('Firebase belum terinisialisasi.');
+                const resetUrl = window.location.protocol === 'http:' || window.location.protocol === 'https:'
+                    ? `${window.location.origin}${window.location.pathname}`
+                    : 'http://localhost:3000/';
+                await window.sendPasswordResetEmail(window.firebaseAuth, email, {
+                    url: resetUrl,
+                    handleCodeInApp: false
+                });
+                Swal.fire('Email Terkirim', `Tautan untuk membuat password sudah dikirim ke ${escapeHtml(email)}.`, 'success');
+            } catch (error) {
+                Swal.fire('Gagal Mengirim', error.code === 'auth/user-not-found' ? 'Email admin belum terdaftar di Firebase.' : (error.message || 'Email reset gagal dikirim.'), 'error');
+            }
+        }
+
+        async function extendZeeyAdmin(id) {
+            const duration = await Swal.fire({ title: 'Tambah masa aktif', input: 'select', inputOptions: { 3: '3 hari', 7: '7 hari', 14: '14 hari', 30: '1 bulan / 30 hari' }, inputValue: '30', showCancelButton: true, confirmButtonText: 'Perpanjang', confirmButtonColor: '#8b5cf6' });
+            if (!duration.isConfirmed) return;
+            const response = await fetch(`${API_BASE}/api/owner/admins/${encodeURIComponent(id)}/extend`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ durationDays: Number(duration.value) }) });
+            const result = await response.json();
+            if (!result.success) return Swal.fire('Gagal', result.message, 'error');
+            await loadZeeyDashboard();
+        }
+
+        async function deleteZeeyAdmin(id) {
+            const confirm = await Swal.fire({ title: 'Hapus akun admin?', text: 'Akun ini akan dihapus dari daftar owner.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Hapus', confirmButtonColor: '#dc3545' });
+            if (!confirm.isConfirmed) return;
+            const response = await fetch(`${API_BASE}/api/owner/admins/${encodeURIComponent(id)}`, { method: 'DELETE' });
+            const result = await response.json();
+            if (!result.success) return Swal.fire('Gagal', result.message, 'error');
+            await loadZeeyDashboard();
+        }
+
         // 2. Muat Konfigurasi Bot AI & Knowledge Base dari Backend
         async function loadAiConfig() {
             try {
@@ -2495,11 +2960,22 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                 // Set API Key placeholder jika sudah terpasang
                 const apiKeyInput = document.getElementById('inputGeminiApiKey');
                 if (apiKeyInput && data.hasApiKey) {
-                    apiKeyInput.placeholder = "API Key sudah terpasang & aktif (Groq / Gemini AI)";
+                    apiKeyInput.placeholder = `${data.apiKeyCount || 0} API key sudah aktif. Tambahkan key di baris baru.`;
+                }
+                const keyCountBadge = document.getElementById('apiKeyCountBadge');
+                if (keyCountBadge) {
+                    keyCountBadge.innerText = `${data.apiKeyCount || 0} key aktif`;
                 }
 
                 // Set data Knowledge Base
                 if (data.knowledge) {
+                    if (document.getElementById('zeeyBusinessName')) document.getElementById('zeeyBusinessName').value = data.knowledge.businessName || '';
+                    if (document.getElementById('zeeyContactPhone')) document.getElementById('zeeyContactPhone').value = data.knowledge.contactPhone || '';
+                    if (document.getElementById('zeeyCsPhone')) document.getElementById('zeeyCsPhone').value = data.knowledge.csPhone || data.knowledge.contactPhone || '';
+                    if (document.getElementById('zeeySystemInstruction')) document.getElementById('zeeySystemInstruction').value = data.knowledge.systemInstruction || '';
+                    if (document.getElementById('zeeyKnowledgeText')) document.getElementById('zeeyKnowledgeText').value = data.knowledge.knowledgeText || '';
+                    if (document.getElementById('zeeyBotMenu')) document.getElementById('zeeyBotMenu').value = data.knowledge.botMenu || '';
+                    updateZeeyContactButtons(data.knowledge.csPhone || data.knowledge.contactPhone);
                     if (document.getElementById('aiBusinessName')) {
                         document.getElementById('aiBusinessName').value = data.knowledge.businessName || '';
                     }
@@ -2514,20 +2990,137 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                         document.getElementById('aiKnowledgeCharCount').innerText = `${(data.knowledge.knowledgeText || '').length} Karakter`;
                     }
                 }
+                const zeeyKeyCount = document.getElementById('zeeyApiKeyCount');
+                if (zeeyKeyCount) zeeyKeyCount.innerText = `${data.apiKeyCount || 0} key aktif`;
+                loadZeeyDashboard();
             } catch (err) {
                 console.warn('[AI Config] Gagal memuat pengaturan AI:', err.message);
             }
+        }
+
+        async function handleRegister() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value;
+            if (!email || pass.length < 6) {
+                document.getElementById('loginError').innerText = 'Masukkan email dan password minimal 6 karakter untuk mendaftar.';
+                document.getElementById('loginError').classList.remove('d-none');
+                return;
+            }
+            try {
+                if (!window.createUserWithEmailAndPassword || !window.firebaseAuth) throw new Error('Firebase belum terinisialisasi.');
+                await window.createUserWithEmailAndPassword(window.firebaseAuth, email, pass);
+            } catch (error) {
+                document.getElementById('loginError').innerText = error.message || 'Pendaftaran gagal.';
+                document.getElementById('loginError').classList.remove('d-none');
+            }
+        }
+
+        async function sendZeeyPasswordReset() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const errBox = document.getElementById('loginError');
+            const resetButton = [...document.querySelectorAll('#loginScreen button')].find(button => button.textContent.includes('Lupa kata sandi'));
+            if (!email) {
+                errBox.innerText = 'Masukkan email akun terlebih dahulu.';
+                errBox.classList.remove('d-none');
+                document.getElementById('loginEmail').focus();
+                return;
+            }
+            try {
+                if (!window.sendPasswordResetEmail || !window.firebaseAuth) throw new Error('Firebase belum terinisialisasi.');
+                if (resetButton) { resetButton.disabled = true; resetButton.innerText = 'Mengirim link...'; }
+                const resetUrl = window.location.protocol === 'http:' || window.location.protocol === 'https:'
+                    ? `${window.location.origin}${window.location.pathname}`
+                    : 'http://localhost:3000/';
+                await window.sendPasswordResetEmail(window.firebaseAuth, email, { url: resetUrl, handleCodeInApp: false });
+                errBox.className = 'text-success small mt-3';
+                errBox.innerText = 'Link ubah kata sandi sudah dikirim ke email tujuan. Periksa Inbox atau folder Spam.';
+                if (window.Swal) Swal.fire({ icon: 'success', title: 'Link Terkirim', text: `Link untuk mengubah kata sandi sudah dikirim ke ${email}. Periksa Inbox atau folder Spam.`, confirmButtonColor: '#8b5cf6' });
+            } catch (error) {
+                errBox.className = 'text-danger small mt-3';
+                const errorMessages = {
+                    'auth/user-not-found': 'Email belum terdaftar.',
+                    'auth/invalid-email': 'Format email tidak valid.',
+                    'auth/unauthorized-continue-uri': 'URL reset belum diizinkan di Firebase Authentication.',
+                    'auth/operation-not-allowed': 'Login email belum diaktifkan di Firebase Authentication.',
+                    'auth/network-request-failed': 'Firebase tidak dapat dihubungi. Periksa koneksi internet.',
+                    'auth/too-many-requests': 'Terlalu banyak permintaan. Tunggu beberapa menit lalu coba lagi.'
+                };
+                errBox.innerText = errorMessages[error.code] || (error.message || 'Gagal mengirim email reset password.');
+            } finally {
+                if (resetButton) { resetButton.disabled = false; resetButton.innerText = 'Lupa kata sandi?'; }
+            }
+        }
+
+        function openOwnerRegistrationChat() {
+            const ownerPhone = '6281354131178';
+            const message = 'Halo Owner ZeeyBOT, saya ingin mendaftarkan akun baru.';
+            window.open(`https://wa.me/${ownerPhone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
+        }
+
+        async function initializeZeeyPasswordReset() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('mode') !== 'resetPassword' || !params.get('oobCode')) return;
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainAppContainer').style.display = 'none';
+            document.getElementById('resetPasswordScreen').classList.remove('d-none');
+            document.getElementById('newPassword').addEventListener('input', event => {
+                const length = Math.min(event.target.value.length, 12);
+                document.getElementById('resetStrengthBar').style.width = `${Math.round((length / 12) * 100)}%`;
+            });
+            try {
+                if (!window.verifyPasswordResetCode || !window.firebaseAuth) throw new Error('Layanan reset password belum siap.');
+                await window.verifyPasswordResetCode(window.firebaseAuth, params.get('oobCode'));
+            } catch (error) {
+                const message = document.getElementById('resetPasswordMessage');
+                message.className = 'text-danger small mt-3';
+                message.innerText = 'Link reset sudah tidak berlaku atau sudah digunakan. Minta link baru dari halaman login.';
+                document.getElementById('resetPasswordButton').disabled = true;
+            }
+        }
+
+        async function submitZeeyPasswordReset(event) {
+            event.preventDefault();
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('oobCode');
+            const password = document.getElementById('newPassword').value;
+            const confirmation = document.getElementById('confirmNewPassword').value;
+            const message = document.getElementById('resetPasswordMessage');
+            const button = document.getElementById('resetPasswordButton');
+            if (password !== confirmation) {
+                message.className = 'text-danger small mt-3';
+                message.innerText = 'Konfirmasi password belum sama.';
+                return;
+            }
+            button.disabled = true;
+            button.innerText = 'Menyimpan...';
+            try {
+                await window.confirmPasswordReset(window.firebaseAuth, code, password);
+                message.className = 'text-success small mt-3';
+                message.innerText = 'Password berhasil diubah. Silakan kembali ke login.';
+                document.getElementById('resetPasswordForm').reset();
+            } catch (error) {
+                message.className = 'text-danger small mt-3';
+                message.innerText = error.code === 'auth/weak-password' ? 'Password terlalu lemah. Gunakan minimal 6 karakter.' : 'Password gagal diubah. Minta link reset baru.';
+                button.disabled = false;
+                button.innerText = 'Simpan password baru';
+            }
+        }
+
+        function backToZeeyLogin() {
+            window.location.href = window.location.origin + window.location.pathname;
         }
 
         // 3. Toggle Visibility API Key Input
         function toggleApiKeyVisibility() {
             const input = document.getElementById('inputGeminiApiKey');
             const icon = document.getElementById('iconShowKey');
-            if (input.type === 'password') {
-                input.type = 'text';
+            if (input.dataset.visible !== 'true') {
+                input.dataset.visible = 'true';
+                input.style.webkitTextSecurity = 'none';
                 icon.className = 'bi bi-eye-slash';
             } else {
-                input.type = 'password';
+                input.dataset.visible = 'false';
+                input.style.webkitTextSecurity = 'disc';
                 icon.className = 'bi bi-eye';
             }
         }
@@ -2551,7 +3144,7 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                 const res = await fetch(`${API_BASE}/api/ai-config`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ apiKey: keyVal })
+                    body: JSON.stringify({ apiKeys: keyVal.split(/[\n,]+/).map(key => key.trim()).filter(Boolean) })
                 });
                 const result = await res.json();
 
@@ -2563,7 +3156,9 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                         confirmButtonColor: '#128c7e'
                     });
                     apiKeyInput.value = '';
-                    apiKeyInput.placeholder = 'API Key sudah terpasang & aktif (Groq / Gemini AI)';
+                    apiKeyInput.placeholder = `${result.config.apiKeyCount || 0} API key sudah aktif. Tambahkan key di baris baru.`;
+                    const keyCountBadge = document.getElementById('apiKeyCountBadge');
+                    if (keyCountBadge) keyCountBadge.innerText = `${result.config.apiKeyCount || 0} key aktif`;
                 } else {
                     throw new Error(result.message || 'Gagal menyimpan API Key');
                 }
@@ -2786,6 +3381,7 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
             try {
                 // Hardcode bypass untuk Dyreza175
                 if (email.toLowerCase() === 'dyreza175@gmail.com' && pass === 'Papeda12') {
+                    window.currentUserEmail = email;
                     window.firebaseIdToken = 'local-bypass-token';
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('mainAppContainer').style.display = 'block';
@@ -2803,13 +3399,17 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                 }
 
                 if (window.signInWithEmailAndPassword && window.firebaseAuth) {
-                    await window.signInWithEmailAndPassword(window.firebaseAuth, email, pass);
+                    await Promise.race([
+                        window.signInWithEmailAndPassword(window.firebaseAuth, email, pass),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('Login timeout. Periksa koneksi internet atau konfigurasi Firebase.')), 12000))
+                    ]);
                 } else {
                     throw new Error("Firebase belum terinisialisasi. Periksa konfigurasi.");
                 }
             } catch (error) {
                 errBox.innerText = error.message || "Gagal login. Periksa kembali kredensial Anda.";
                 errBox.classList.remove('d-none');
+            } finally {
                 btn.disabled = false;
                 btn.innerHTML = 'Masuk';
             }
@@ -2820,6 +3420,16 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
             if (window.signOut && window.firebaseAuth) {
                 window.signOut(window.firebaseAuth);
             }
+        }
+
+        function logoutZeeyApp() {
+            window.firebaseIdToken = null;
+            if (window.signOut && window.firebaseAuth) {
+                window.signOut(window.firebaseAuth);
+            }
+            document.getElementById('mainAppContainer').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('loginForm').reset();
         }
 
         // Listener Status Auth
@@ -2838,7 +3448,9 @@ Apakah berkenan berdiskusi lebih lanjut?</textarea>
                         const mainApp = document.getElementById('mainAppContainer');
                         
                         if (user) {
+                            window.currentUserEmail = user.email || '';
                             window.firebaseIdToken = await user.getIdToken();
+                            if (new URLSearchParams(window.location.search).get('mode') === 'resetPassword') return;
                             loginScreen.style.display = 'none';
                             mainApp.style.display = 'block';
                             

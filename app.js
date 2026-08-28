@@ -123,12 +123,26 @@ let knowledgeData = {
     tagline: "Pusat Wisata Budaya, Homestay Etnik, & Pengalaman Autentik Tanah Papua",
     location: "Sorong, Papua Barat Daya (Gerbang Wisata Raja Ampat)",
     contactPhone: "+62 811-4600-1602",
+    csPhone: "+62 811-4600-1602",
+    botMenu: "1. Info Harga\n2. Paket Wisata\n3. Reservasi\n4. Bicara dengan CS",
     systemInstruction: "Anda adalah Asisten Virtual Resmi 'Rumah Etnik Papua' yang ramah, hangat, dan informatif.",
     knowledgeText: ""
 };
+let managedAdmins = [];
+
+function normalizeAdminRecord(adminRecord) {
+    const expiresAt = adminRecord.expiresAt || new Date(Date.now() + 3 * 86400000).toISOString();
+    return { ...adminRecord, expiresAt, status: new Date(expiresAt) > new Date() ? 'Aktif' : 'Kedaluwarsa' };
+}
+
+async function saveManagedAdmins() {
+    knowledgeData.ownerAdmins = managedAdmins;
+    if (db) await db.collection('settings').doc('knowledge_base').set({ ownerAdmins: managedAdmins }, { merge: true });
+    else fs.writeFileSync(KNOWLEDGE_FILE, JSON.stringify(knowledgeData, null, 2), 'utf8');
+}
 
 let aiConfig = {
-    apiKey: process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || '',
+    apiKeys: (process.env.AI_API_KEYS || process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || '').split(/[\n,]+/).map(key => key.trim()).filter(Boolean),
     provider: process.env.AI_PROVIDER || 'gemini',
     autoReply: process.env.AI_AUTO_REPLY === 'true',
     modelName: sanitizeAiModel(process.env.AI_MODEL_NAME || 'gemini-1.5-flash')
@@ -138,10 +152,13 @@ if (fs.existsSync(KNOWLEDGE_FILE)) {
     try {
         const rawKnowledge = JSON.parse(fs.readFileSync(KNOWLEDGE_FILE, 'utf8'));
         knowledgeData = { ...knowledgeData, ...rawKnowledge };
+        managedAdmins = (rawKnowledge.ownerAdmins || []).map(normalizeAdminRecord);
         // Ambil aiConfig yang tersimpan jika ada
         if (rawKnowledge.aiConfig) {
             aiConfig = {
-                apiKey: rawKnowledge.aiConfig.apiKey || process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || '',
+                apiKeys: Array.isArray(rawKnowledge.aiConfig.apiKeys)
+                    ? rawKnowledge.aiConfig.apiKeys.filter(Boolean)
+                    : String(rawKnowledge.aiConfig.apiKey || process.env.AI_API_KEYS || process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || '').split(/[\n,]+/).map(key => key.trim()).filter(Boolean),
                 provider: rawKnowledge.aiConfig.provider || process.env.AI_PROVIDER || 'gemini',
                 autoReply: typeof rawKnowledge.aiConfig.autoReply === 'boolean' 
                     ? rawKnowledge.aiConfig.autoReply 
@@ -163,8 +180,12 @@ async function loadKnowledgeFromFirestore() {
         if (doc.exists) {
             const data = doc.data();
             knowledgeData = { ...knowledgeData, ...data };
+            managedAdmins = (data.ownerAdmins || []).map(normalizeAdminRecord);
             if (data.aiConfig) {
                 aiConfig = { ...aiConfig, ...data.aiConfig };
+                aiConfig.apiKeys = Array.isArray(data.aiConfig.apiKeys)
+                    ? data.aiConfig.apiKeys.filter(Boolean)
+                    : String(data.aiConfig.apiKey || aiConfig.apiKeys.join('\n') || process.env.AI_API_KEYS || process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || '').split(/[\n,]+/).map(key => key.trim()).filter(Boolean);
                 if (aiConfig.modelName) {
                     aiConfig.modelName = sanitizeAiModel(aiConfig.modelName);
                 }
@@ -182,21 +203,42 @@ async function loadKnowledgeFromFirestore() {
 loadKnowledgeFromFirestore();
 
 // Inisialisasi aiConfig dengan prioritas: Disimpan di File -> ENV Variable
-if (!aiConfig.apiKey) {
-    aiConfig.apiKey = process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || '';
+if (!Array.isArray(aiConfig.apiKeys) || aiConfig.apiKeys.length === 0) {
+    aiConfig.apiKeys = (process.env.AI_API_KEYS || process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || '').split(/[\n,]+/).map(key => key.trim()).filter(Boolean);
 }
 if (process.env.AI_AUTO_REPLY === 'true') {
     aiConfig.autoReply = true;
 }
 
 console.log(`[AI Bot] Status Auto-Reply Awal: ${aiConfig.autoReply ? 'AKTIF 🟢' : 'NONAKTIF ⚪'}`);
-console.log(`[AI Bot] API Key Terpasang: ${aiConfig.apiKey ? 'Ya (' + aiConfig.apiKey.substring(0, 8) + '...)' : 'Belum diatur ⚠️'}`);
+let aiKeyRotationIndex = 0;
+console.log(`[AI Bot] API Key Terpasang: ${aiConfig.apiKeys.length ? `Ya (${aiConfig.apiKeys.length} key)` : 'Belum diatur ⚠️'}`);
 
 let isClientReady = false;
 let clientStatus = 'Menyiapkan sesi WhatsApp...';
 let currentQr = null;
 let currentPairingCode = null;
 let userInfo = null;
+const dashboardStats = { queued: 0, sentToday: 0, activeProcesses: 0, failedToday: 0 };
+const inboxContacts = new Map();
+let integrations = [];
+
+function recordInboxContact(from, body) {
+    if (!from || !body) return;
+    const current = inboxContacts.get(from) || { phone: from.replace('@c.us', ''), lastMessage: '', updatedAt: null, status: 'Hubungi Admin' };
+    current.lastMessage = body;
+    current.updatedAt = new Date().toISOString();
+    if (/\bdp\b|uang muka|down payment|transfer|bayar/i.test(body)) current.status = 'DP';
+    else if (/reserv|booking|pesan|harga|kamar|paket/i.test(body)) current.status = 'Reservasi';
+    else current.status = 'Hubungi Admin';
+    inboxContacts.set(from, current);
+}
+
+function getKnowledgeTopic(keyword, fallback) {
+    const source = knowledgeData.knowledgeText || '';
+    const match = source.match(new RegExp(`(?:^|\\n)([^\\n]*${keyword}[^\\n]*)([\\s\\S]*?)(?=\\n#{1,3} |\\n\\d+\\. |$)`, 'i'));
+    return match ? `${match[1].trim()}${match[2].trim()}`.trim() : fallback;
+}
 
 // Fungsi Khusus: Memanggil Groq Cloud AI (Llama 3.3 70B & Llama 3.1 8B) - Super Cepat & Kuota Gratis 14.400 req/hari
 async function callGroqAi(apiKey, systemInstruction, userMessage) {
@@ -283,18 +325,20 @@ async function callGeminiAi(apiKey, systemInstruction, userMessage) {
 
 // Fungsi Utama: Generate Balasan AI Berdasarkan Knowledge Base Rumah Etnik Papua (Otomatis Mendukung Groq & Gemini)
 async function generateAiResponse(userMessage) {
-    const rawKeys = (aiConfig.apiKey || process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || '').trim();
-    if (!rawKeys) {
+    const keyList = Array.isArray(aiConfig.apiKeys) ? aiConfig.apiKeys.filter(Boolean) : [];
+    if (!keyList.length) {
         throw new Error('API Key belum diatur. Silakan masukkan Groq API Key (gsk_...) di menu Bot AI.');
     }
-
-    // Pisahkan jika pengguna memasukkan beberapa API Key (dipisah koma atau baris baru)
-    const keyList = rawKeys.split(/[\n,]+/).map(k => k.trim()).filter(Boolean);
 
     const fullSystemInstruction = `${knowledgeData.systemInstruction || 'Anda adalah Asisten Virtual Resmi Rumah Etnik Papua.'}
 
 === BASIS PENGETAHUAN RESMI RUMAH ETNIK PAPUA ===
 ${knowledgeData.knowledgeText || ''}
+
+=== MENU BOT ===
+${knowledgeData.botMenu || ''}
+Nomor CS: ${knowledgeData.csPhone || knowledgeData.contactPhone || ''}
+Jika pelanggan meminta reservasi, arahkan ke nomor pengelola. Jika meminta CS, arahkan ke nomor CS.
 
 === PANDUAN MENJAWAB ===
 1. Jawablah dengan nada bicara yang ramah, sopan, bersahabat, dan mencerminkan keramahan khas tanah Papua (misal gunakan sapaan hangat 'Halo Kaka', 'Bapak/Ibu', dll).
@@ -305,8 +349,11 @@ ${knowledgeData.knowledgeText || ''}
 
     let lastError = null;
 
-    // Coba setiap API Key yang dimasukkan
-    for (let kIdx = 0; kIdx < keyList.length; kIdx++) {
+    // Mulai dari key berikutnya agar beban tersebar, lalu coba semua key sekali.
+    const startIndex = aiKeyRotationIndex % keyList.length;
+    aiKeyRotationIndex = (startIndex + 1) % keyList.length;
+    for (let attempt = 0; attempt < keyList.length; attempt++) {
+        const kIdx = (startIndex + attempt) % keyList.length;
         const activeKey = keyList[kIdx];
         const isGroq = activeKey.startsWith('gsk_');
 
@@ -413,6 +460,7 @@ async function handleIncomingMessage(msg, eventSource) {
 
     // 3. Pastikan ada teks
     if (!body) return;
+    recordInboxContact(from, body);
 
     // Log aktivitas pesan masuk (HANYA UNTUK PESAN BARU YANG RELEVAN)
     console.log(`\n--------------------------------------------------`);
@@ -446,14 +494,14 @@ async function handleIncomingMessage(msg, eventSource) {
     // Selalu izinkan untuk kembali ke menu utama dari mana saja
     if (textLower === '0' || textLower === 'menu' || textLower === 'kembali') {
         userState.set(from, 'MENU_UTAMA');
-        const menuMsg = "Selamat datang di *Rumah Etnik Papua*! 🛖🌿\nSilakan balas dengan mengetik *angka* pilihan menu di bawah ini:\n\n1️⃣ Harga Tiket Masuk & Layanan\n2️⃣ Daftar Paket (Wisata & Edukasi)\n3️⃣ Informasi Kamar (Rumsram Homestay)\n4️⃣ Cinderamata & Kesenian\n5️⃣ FAQ (Pertanyaan Umum)\n6️⃣ Tanya Asisten AI (Chatbot Pintar)";
+        const menuMsg = `Selamat datang di *${knowledgeData.businessName || 'Rumah Etnik Papua'}*! 🛖🌿\nSilakan balas dengan mengetik *angka* pilihan menu di bawah ini:\n\n${knowledgeData.botMenu || '1️⃣ Harga Tiket Masuk & Layanan\n2️⃣ Daftar Paket Wisata\n3️⃣ Reservasi\n4️⃣ Hubungi Admin'}`;
         if (client) await client.sendMessage(from, menuMsg);
         return;
     }
 
     if (currentState === 'MENU_UTAMA') {
         if (textLower === '1') {
-            const reply = "✨ *Harga Tiket Masuk & Layanan* ✨\n\n*Domestik*\n• Dewasa: Rp 25.000\n• Anak-anak (<8 Thn): Rp 10.000\n\n*Internasional*\n• Dewasa: Rp 50.000\n• Anak-anak (<8 Thn): Rp 25.000\n\n*Sewa Kostum (Di Lokasi)*\n• Domestik: Dewasa Rp 75.000 | Anak Rp 50.000\n• Internasional: Dewasa Rp 100.000 | Anak Rp 60.000\n\n*Layanan Lainnya*\n• Fotografi: 1-5 org (Rp 200rb), 5-10 org (Rp 250rb), 10-15 org (Rp 300rb) maks 50 file.\n• Rambut Sambung/Kepang: Rp 25.000/orang\n\n_(Ketik *0* untuk kembali ke Menu Utama)_";
+            const reply = `✨ *Info Harga* ✨\n\n${getKnowledgeTopic('Harga|Tarif', 'Silakan hubungi admin untuk detail harga terbaru.')}\n\n_(Ketik *0* untuk kembali ke Menu Utama)_`;
             if (client) await client.sendMessage(from, reply);
         } else if (textLower === '2') {
             userState.set(from, 'MENU_PAKET');
@@ -474,7 +522,7 @@ async function handleIncomingMessage(msg, eventSource) {
             if (client) await client.sendMessage(from, reply);
         } else {
             // Tampilkan Menu Utama Default
-            const menuMsg = "Selamat datang di *Rumah Etnik Papua*! 🛖🌿\nSilakan balas dengan mengetik *angka* pilihan menu di bawah ini:\n\n1️⃣ Harga Tiket Masuk & Layanan\n2️⃣ Daftar Paket (Wisata & Edukasi)\n3️⃣ Informasi Kamar (Rumsram Homestay)\n4️⃣ Cinderamata & Kesenian\n5️⃣ FAQ (Pertanyaan Umum)\n6️⃣ Tanya Asisten AI (Chatbot Pintar)";
+            const menuMsg = `Selamat datang di *${knowledgeData.businessName || 'Rumah Etnik Papua'}*! 🛖🌿\nSilakan balas dengan mengetik *angka* pilihan menu di bawah ini:\n\n${knowledgeData.botMenu || '1️⃣ Harga Tiket Masuk & Layanan\n2️⃣ Daftar Paket Wisata\n3️⃣ Reservasi\n4️⃣ Hubungi Admin'}`;
             if (client) await client.sendMessage(from, menuMsg);
         }
     } else if (currentState === 'MENU_PAKET') {
@@ -493,8 +541,7 @@ async function handleIncomingMessage(msg, eventSource) {
         }
     } else if (currentState === 'AI_MODE') {
         // Cek API Key sebelum memanggil AI
-        const apiKey = (aiConfig.apiKey || process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || '').trim();
-        if (!apiKey) {
+        if (!aiConfig.apiKeys.length) {
             console.error(`[AI Auto-Reply GAGAL] API Key belum diisi! Silakan masukkan API Key di Web Dashboard.`);
             console.log(`--------------------------------------------------\n`);
             return;
@@ -505,14 +552,19 @@ async function handleIncomingMessage(msg, eventSource) {
         try {
             const aiReply = await generateAiResponse(body);
             if (aiReply) {
+                let replyWithActions = aiReply;
+                const managerPhone = String(knowledgeData.contactPhone || '').replace(/\D/g, '');
+                const csPhone = String(knowledgeData.csPhone || knowledgeData.contactPhone || '').replace(/\D/g, '');
+                if (/reserv|booking/i.test(body) && managerPhone) replyWithActions += `\n\n📅 *Reservasi:* https://wa.me/${managerPhone}`;
+                if (/cs|admin|bicara|hubungi/i.test(body) && csPhone) replyWithActions += `\n\n👤 *Bicara dengan CS:* https://wa.me/${csPhone}`;
                 console.log(`[AI Reply Generated]: "${aiReply.substring(0, 100)}..."`);
                 await new Promise(r => setTimeout(r, 1500));
                 
                 try {
-                    await msg.reply(aiReply);
+                    await msg.reply(replyWithActions);
                 } catch (replyErr) {
                     console.warn(`[msg.reply failed, trying sendMessage]:`, replyErr.message);
-                    if (client) await client.sendMessage(from, aiReply);
+                    if (client) await client.sendMessage(from, replyWithActions);
                 }
                 
                 console.log(`[AI Auto-Reply SUKSES] Berhasil dikirim ke ${from}!`);
@@ -649,21 +701,73 @@ startWhatsAppClient();
 app.get('/api/ai-config', requireAuth, (req, res) => {
     res.json({
         autoReply: aiConfig.autoReply,
-        hasApiKey: !!(aiConfig.apiKey || process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY),
+        hasApiKey: aiConfig.apiKeys.length > 0,
+        apiKeyCount: aiConfig.apiKeys.length,
         modelName: aiConfig.modelName,
         knowledge: knowledgeData
     });
 });
 
+app.get('/api/dashboard', requireAuth, (req, res) => {
+    managedAdmins = managedAdmins.map(normalizeAdminRecord);
+    res.json({ stats: dashboardStats, inbox: Array.from(inboxContacts.values()), integrations, admins: managedAdmins });
+});
+
+app.post('/api/integrations', requireAuth, (req, res) => {
+    const { platform, name, identifier, status } = req.body || {};
+    if (!platform || !name) return res.status(400).json({ success: false, message: 'Platform dan nama akun wajib diisi.' });
+    const item = { id: Date.now().toString(), platform, name, identifier: identifier || '-', status: status || 'Menunggu koneksi' };
+    integrations.push(item);
+    res.json({ success: true, integration: item, integrations });
+});
+
+app.delete('/api/integrations/:id', requireAuth, (req, res) => {
+    integrations = integrations.filter(item => item.id !== req.params.id);
+    res.json({ success: true, integrations });
+});
+
+app.get('/api/owner/admins', requireAuth, (req, res) => res.json({ success: true, admins: managedAdmins }));
+app.get('/api/subscription', requireAuth, (req, res) => {
+    const account = managedAdmins.find(item => item.email.toLowerCase() === String(req.query.email || '').toLowerCase());
+    if (!account) return res.json({ success: true, subscription: null });
+    const normalized = normalizeAdminRecord(account);
+    res.json({ success: true, subscription: { packageName: normalized.packageName || '-', expiresAt: normalized.expiresAt, status: normalized.status } });
+});
+app.post('/api/owner/admins', requireAuth, (req, res) => {
+    const { name, email, businessName, phone, durationDays } = req.body || {};
+    if (!name || !email) return res.status(400).json({ success: false, message: 'Nama dan email admin wajib diisi.' });
+    const duration = [3, 7, 14, 30].includes(Number(durationDays)) ? Number(durationDays) : 3;
+    const adminRecord = normalizeAdminRecord({ id: Date.now().toString(), name, email, businessName: businessName || '-', phone: phone || '-', packageName: `${duration} Hari`, expiresAt: new Date(Date.now() + duration * 86400000).toISOString() });
+    managedAdmins.push(adminRecord);
+    saveManagedAdmins().then(() => res.json({ success: true, admin: adminRecord, admins: managedAdmins })).catch(error => res.status(500).json({ success: false, message: error.message }));
+});
+
+app.patch('/api/owner/admins/:id/extend', requireAuth, (req, res) => {
+    const adminRecord = managedAdmins.find(item => item.id === req.params.id);
+    const duration = Number(req.body?.durationDays);
+    if (!adminRecord || ![3, 7, 14, 30].includes(duration)) return res.status(400).json({ success: false, message: 'Admin atau durasi tidak valid.' });
+    const currentExpiry = new Date(adminRecord.expiresAt) > new Date() ? new Date(adminRecord.expiresAt) : new Date();
+    adminRecord.expiresAt = new Date(currentExpiry.getTime() + duration * 86400000).toISOString();
+    adminRecord.packageName = `${duration} Hari tambahan`;
+    adminRecord.status = 'Aktif';
+    saveManagedAdmins().then(() => res.json({ success: true, admin: adminRecord, admins: managedAdmins })).catch(error => res.status(500).json({ success: false, message: error.message }));
+});
+
+app.delete('/api/owner/admins/:id', requireAuth, (req, res) => {
+    managedAdmins = managedAdmins.filter(item => item.id !== req.params.id);
+    saveManagedAdmins().then(() => res.json({ success: true, admins: managedAdmins })).catch(error => res.status(500).json({ success: false, message: error.message }));
+});
+
 // Endpoint AI 2: Simpan Konfigurasi AI & Knowledge Base
 app.post('/api/ai-config', requireAuth, async (req, res) => {
-    const { apiKey, autoReply, knowledge, provider, modelName } = req.body;
+    const { apiKey, apiKeys, autoReply, knowledge, provider, modelName } = req.body;
     
     if (typeof autoReply === 'boolean') {
         aiConfig.autoReply = autoReply;
     }
-    if (apiKey !== undefined && apiKey.trim() !== '') {
-        aiConfig.apiKey = apiKey.trim();
+    if (apiKeys !== undefined || apiKey !== undefined) {
+        const submittedKeys = Array.isArray(apiKeys) ? apiKeys : String(apiKey || '').split(/[\n,]+/);
+        aiConfig.apiKeys = submittedKeys.map(key => String(key).trim()).filter(Boolean);
     }
     if (provider) {
         aiConfig.provider = provider;
@@ -677,7 +781,7 @@ app.post('/api/ai-config', requireAuth, async (req, res) => {
 
     // Selalu simpan knowledgeData dan aiConfig ke Firestore / File
     knowledgeData.aiConfig = {
-        apiKey: aiConfig.apiKey,
+        apiKeys: aiConfig.apiKeys,
         provider: aiConfig.provider,
         autoReply: aiConfig.autoReply,
         modelName: aiConfig.modelName
@@ -699,7 +803,8 @@ app.post('/api/ai-config', requireAuth, async (req, res) => {
         message: 'Pengaturan Bot AI & Basis Pengetahuan Rumah Etnik Papua berhasil disimpan!',
         config: {
             autoReply: aiConfig.autoReply,
-            hasApiKey: !!(aiConfig.apiKey || process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY),
+            hasApiKey: aiConfig.apiKeys.length > 0,
+            apiKeyCount: aiConfig.apiKeys.length,
             provider: aiConfig.provider,
             modelName: aiConfig.modelName,
             knowledge: knowledgeData
@@ -754,6 +859,9 @@ app.post('/request-pairing-code', requireAuth, async (req, res) => {
     }
 
     try {
+        if (!client) {
+            return res.status(503).json({ success: false, message: 'Client WhatsApp belum siap. Tunggu sampai server selesai menyiapkan sesi.' });
+        }
         console.log(`[PAIRING] Meminta kode verifikasi untuk nomor: +${cleanNumber}`);
         clientStatus = `Meminta kode pairing untuk +${cleanNumber}...`;
         
@@ -861,6 +969,8 @@ app.post('/send-blast', requireAuth, async (req, res) => {
     }
 
     console.log(`[BLAST] Memulai pengiriman pesan ke ${contacts.length} kontak...`);
+    dashboardStats.activeProcesses++;
+    dashboardStats.queued = contacts.length;
 
     for (let i = 0; i < contacts.length; i++) {
         const contact = contacts[i];
@@ -872,6 +982,8 @@ app.post('/send-blast', requireAuth, async (req, res) => {
         // Cek jika nomor kosong
         if (!rawNoWa) {
             failedCount++;
+            dashboardStats.failedToday++;
+            dashboardStats.queued = Math.max(0, dashboardStats.queued - 1);
             reportDetails.push({
                 index: i,
                 no_wa: '-',
@@ -895,6 +1007,8 @@ app.post('/send-blast', requireAuth, async (req, res) => {
         // Cek validitas panjang nomor (Indonesia umumnya 10 - 14 digit dengan kode negara 62)
         if (cleanNumber.length < 9) {
             failedCount++;
+            dashboardStats.failedToday++;
+            dashboardStats.queued = Math.max(0, dashboardStats.queued - 1);
             reportDetails.push({
                 index: i,
                 no_wa: rawNoWa,
@@ -912,12 +1026,19 @@ app.post('/send-blast', requireAuth, async (req, res) => {
             .replace(/\[NAMA\]/g, contact.NAMA || '')
             .replace(/\[PERUSAHAAN\]/g, contact.PERUSAHAAN || '')
             .replace(/\[VIDEO\]/g, contact.VIDEO || '');
+        Object.keys(contact).forEach((key, keyIndex) => {
+            const value = contact[key] == null ? '' : String(contact[key]);
+            finalMessage = finalMessage.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'gi'), value);
+            finalMessage = finalMessage.replace(new RegExp(`\\{\\{${keyIndex + 1}\\}\\}`, 'g'), value);
+        });
             
         const numberId = cleanNumber + "@c.us";
         
         try {
             await client.sendMessage(numberId, finalMessage);
             successCount++;
+            dashboardStats.sentToday++;
+            dashboardStats.queued = Math.max(0, dashboardStats.queued - 1);
             reportDetails.push({
                 index: i,
                 no_wa: cleanNumber,
@@ -935,6 +1056,8 @@ app.post('/send-blast', requireAuth, async (req, res) => {
             }
         } catch (error) {
             failedCount++;
+            dashboardStats.failedToday++;
+            dashboardStats.queued = Math.max(0, dashboardStats.queued - 1);
             const errRaw = String(error.message || error);
             let friendlyReason = 'Gagal mengirim pesan';
 
@@ -960,6 +1083,7 @@ app.post('/send-blast', requireAuth, async (req, res) => {
     }
     
     console.log(`[BLAST SELESAI] Terkirim: ${successCount}, Gagal/Skip: ${failedCount}, Total: ${contacts.length}`);
+    dashboardStats.activeProcesses = Math.max(0, dashboardStats.activeProcesses - 1);
 
     res.json({ 
         status: 'Selesai', 
